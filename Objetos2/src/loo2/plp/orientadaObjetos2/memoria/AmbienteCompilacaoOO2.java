@@ -3,6 +3,8 @@ package loo2.plp.orientadaObjetos2.memoria;
 import loo2.plp.expressions2.expression.Id;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
+import loo2.plp.orientadaObjetos2.excecao.declaracao.ProtocoloJaDeclaradoException;
+import loo2.plp.orientadaObjetos2.excecao.declaracao.ProtocoloNaoDeclaradoException;
 import loo2.plp.orientadaObjetos2.util.SuperClasseMap;
 
 public interface AmbienteCompilacaoOO2 extends AmbienteCompilacaoOO1{
@@ -22,5 +24,21 @@ public interface AmbienteCompilacaoOO2 extends AmbienteCompilacaoOO1{
 	 * @throws ClasseNaoDeclaradaException Quando a classe ainda nao foi definida
 	 */
 	public SuperClasseMap getSuperClasse(Id classe) throws ClasseNaoDeclaradaException;
+
+	/**
+	 * Mapeia um identificador de protocolo a sua definicao.
+	 * @param protocolo identificador do protocolo
+	 * @param defProtocolo definicao (assinaturas) do protocolo
+	 * @throws ProtocoloJaDeclaradoException Quando ja existe protocolo com esse nome
+	 */
+	public void mapDefProtocolo(Id protocolo, DefProtocolo defProtocolo) throws ProtocoloJaDeclaradoException;
+
+	/**
+	 * Dado um identificador de protocolo, recupera sua definicao.
+	 * @param protocolo identificador do protocolo
+	 * @return Definicao do protocolo
+	 * @throws ProtocoloNaoDeclaradoException Quando o protocolo nao foi declarado
+	 */
+	public DefProtocolo getDefProtocolo(Id protocolo) throws ProtocoloNaoDeclaradoException;
 
 }

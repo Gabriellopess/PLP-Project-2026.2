@@ -85,6 +85,11 @@ import loo2.plp.orientadaObjetos2.memoria.ContextoExecucaoOO2;
 import loo2.plp.orientadaObjetos2.comando.*;
 import loo2.plp.orientadaObjetos2.expressao.leftExpression.*;
 import loo2.plp.orientadaObjetos2.declaracao.variavel.DecVariavelObjetoOO2;
+import loo2.plp.orientadaObjetos2.declaracao.DecOO;
+import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
+import loo2.plp.orientadaObjetos2.declaracao.protocolo.DecProtocolo;
+import loo2.plp.orientadaObjetos2.declaracao.protocolo.ListaAssinatura;
+import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 /**
  * Parser para a Linguagem de Programa��o Orientada a Objetos 2
@@ -237,11 +242,17 @@ TOKEN : /* TOKENS DE OO2 */
   < EXTENDS : "extends" >
 }
 
+TOKEN : /* TOKENS DE DUCK TYPING */
+{
+  < PROTOCOLO : "protocolo" >
+}
+
 TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
 {
   < INT : "int" >
 | < BOOLEAN : "boolean" >
 | < STRING : "string" >
+| < DYN : "dyn" >
 }
 
 TOKEN : /* LITERALS */
@@ -1103,22 +1114,22 @@ AcessoAtributoIdOO2 PAcessoAtributoIdChamador() :
 }
 
 /**
-*ListaDeclaracaoOO := DecClasse
-*                   | DecClasse "," ListaDeclaracaoOO
+*ListaDeclaracaoOO ::= DecOO
+*                    | DecOO "," ListaDeclaracaoOO
 **/
 
 ListaDeclaracaoOO PListaDeclaracaoOO() :
 {
 	ListaDeclaracaoOO retorno;
-	DecClasse decClasse;
+	DecOO decOO;
 }
 {
   (
-    LOOKAHEAD(PDecClasseAtomica() < COMMA >)
-    	retorno = PDecClasseComposta()
-  	|decClasse = PDecClasseAtomica()
+    LOOKAHEAD(PDecOO() < COMMA >)
+    	retorno = PDecOOComposta()
+  	|decOO = PDecOO()
   	{
-    	retorno = new ListaDeclaracaoOO(decClasse);
+    	retorno = new ListaDeclaracaoOO(decOO);
   	}
   )
   {
@@ -1127,17 +1138,110 @@ ListaDeclaracaoOO PListaDeclaracaoOO() :
 }
 
 /**
+ * DecOO ::= DecClasse | DecProtocolo
+ **/
+DecOO PDecOO() :
+{
+  DecOO retorno;
+}
+{
+  (
+    LOOKAHEAD(< PROTOCOLO >)
+    retorno = PDecProtocolo()
+  | retorno = PDecClasseAtomica()
+  )
+  {
+    return retorno;
+  }
+}
+
+/**
+ * DecProtocolo ::= "protocolo" Id "{" ListaAssinatura "}"
+ **/
+DecProtocolo PDecProtocolo() :
+{
+  Id nomeProtocolo;
+  ListaAssinatura assinaturas;
+}
+{
+  < PROTOCOLO > nomeProtocolo = PId() < LBRACE > assinaturas = PListaAssinatura() < RBRACE >
+  {
+    return new DecProtocolo(nomeProtocolo, assinaturas);
+  }
+}
+
+/**
+ * ListaAssinatura ::= Assinatura | Assinatura "," ListaAssinatura
+ **/
+ListaAssinatura PListaAssinatura() :
+{
+  ListaAssinatura retorno;
+  Assinatura assinatura;
+}
+{
+  (
+    LOOKAHEAD(PAssinatura() < COMMA >)
+    retorno = PListaAssinaturaComposta()
+  | assinatura = PAssinatura()
+    {
+      retorno = new ListaAssinatura(assinatura);
+    }
+  )
+  {
+    return retorno;
+  }
+}
+
+/**
+ * ... Assinatura "," ListaAssinatura
+ **/
+ListaAssinatura PListaAssinaturaComposta() :
+{
+  Assinatura a1;
+  ListaAssinatura a2;
+}
+{
+  a1 = PAssinatura() < COMMA > a2 = PListaAssinatura()
+  {
+    return new ListaAssinatura(a1, a2);
+  }
+}
+
+/**
+ * Assinatura ::= "proc" Id "(" ")" | "proc" Id "(" ListaDeclaracaoParametro ")"
+ **/
+Assinatura PAssinatura() :
+{
+  Id nome;
+  ListaDeclaracaoParametro listaPar = null;
+}
+{
+  (
+    LOOKAHEAD(< PROC > PId() < LPAREN > < RPAREN >)
+    < PROC > nome = PId() < LPAREN > < RPAREN >
+  | < PROC > nome = PId() < LPAREN > listaPar = PListaDeclaracaoParametro() < RPAREN >
+  )
+  {
+    if (listaPar == null)
+    {
+      listaPar = new ListaDeclaracaoParametro();
+    }
+    return new Assinatura(nome, listaPar);
+  }
+}
+
+/**
  * DecClasse ::= "classe" Id ["extends" Id] "{" DecVariavel ";" DecConstrutor ";" DecProcedimento "}"
  **/
  
-DecClasse PDecClasseAtomica() :
+DecClasseSimplesOO2 PDecClasseAtomica() :
 {
   Id nomeClasse;
   Id superClasse = null;
   DecVariavel atributos;
   DecConstrutor decConstrutor = null;
   DecProcedimento metodos;
-  DecClasse resposta;
+  DecClasseSimplesOO2 resposta;
   Token classeToken;
   Token rbraceToken;
 }
@@ -1189,15 +1293,15 @@ DecClasse PDecClasseAtomica() :
 }
 
 /**
- * ...  | DecClasse "," ListaDeclaracaoOO
+ * ...  | DecOO "," ListaDeclaracaoOO
  **/
-ListaDeclaracaoOO PDecClasseComposta() :
+ListaDeclaracaoOO PDecOOComposta() :
 {
-  DecClasse d1;
+  DecOO d1;
   ListaDeclaracaoOO d2;
 }
 {
-  d1 = PDecClasseAtomica() < COMMA > d2 = PListaDeclaracaoOO()
+  d1 = PDecOO() < COMMA > d2 = PListaDeclaracaoOO()
   {
     return new ListaDeclaracaoOO(d1, d2);
   }
@@ -1465,7 +1569,7 @@ DecParametro PDecParametroAtomico() :
 }
 
 /**
- * Tipo ::= TipoClasse | TipoPrimitivo
+ * Tipo ::= TipoPrimitivo | TipoClasse | TipoDinamico
  **/
 Tipo PTipo() :
 {
@@ -1477,10 +1581,24 @@ Tipo PTipo() :
   | < INT >
   | < BOOLEAN >)
     tipo = PTipoPrimitivo()
+  | LOOKAHEAD(< DYN >)
+    tipo = PTipoDinamico()
   | tipo = PTipoClasse()
   )
   {
     return tipo;
+  }
+}
+
+/**
+ * TipoDinamico ::= "dyn"
+ **/
+Tipo PTipoDinamico() :
+{}
+{
+  < DYN >
+  {
+    return TipoDinamico.TIPO_DYN;
   }
 }
 

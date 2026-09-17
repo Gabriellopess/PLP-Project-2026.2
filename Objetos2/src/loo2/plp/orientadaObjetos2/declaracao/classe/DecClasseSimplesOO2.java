@@ -12,12 +12,13 @@ import loo2.plp.orientadaObjetos1.excecao.declaracao.ProcedimentoNaoDeclaradoExc
 import loo2.plp.orientadaObjetos1.expressao.leftExpression.Id;
 import loo2.plp.orientadaObjetos1.util.TipoClasse;
 import loo2.plp.orientadaObjetos2.declaracao.ConstrutorNaoDeclaradoException;
+import loo2.plp.orientadaObjetos2.declaracao.DecOO;
 import loo2.plp.orientadaObjetos2.declaracao.DecConstrutor;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
 
-public class DecClasseSimplesOO2 extends DecClasseSimples {
+public class DecClasseSimplesOO2 extends DecClasseSimples implements DecOO {
 	
 	/**
 	 * Identificador da super classe
