@@ -85,6 +85,7 @@ import loo2.plp.orientadaObjetos2.memoria.ContextoExecucaoOO2;
 import loo2.plp.orientadaObjetos2.comando.*;
 import loo2.plp.orientadaObjetos2.expressao.leftExpression.*;
 import loo2.plp.orientadaObjetos2.declaracao.variavel.DecVariavelObjetoOO2;
+import loo2.plp.orientadaObjetos2.declaracao.variavel.SimplesDecVariavelOO2;
 import loo2.plp.orientadaObjetos2.declaracao.DecOO;
 import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
 import loo2.plp.orientadaObjetos2.declaracao.protocolo.DecProtocolo;
@@ -1441,7 +1442,7 @@ SimplesDecVariavel PSimplesDecVariavel() :
   (
     tipo = PTipo() id = PId() < ASSIGN > exp = PExpressao()
     {
-      retorno = new SimplesDecVariavel(tipo, id, exp);
+      retorno = new SimplesDecVariavelOO2(tipo, id, exp);
     }
   )
   {

@@ -1,0 +1,15 @@
+// Duck typing dinamico: o programa passa na verificacao de tipos, mas a
+// chamada d.voar() falha em tempo de execucao porque Pato nao sabe voar.
+{
+	classe Pato {
+		string nome = "Pato";
+		Pato(){ skip },
+		proc falar(){ write(this.nome ++ ": Quack") }
+	};
+	{
+		dyn d := new Pato();
+		d.falar();
+		d.voar();
+		write("nao deve chegar aqui")
+	}
+}

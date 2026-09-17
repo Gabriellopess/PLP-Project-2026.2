@@ -19,15 +19,15 @@ public class SimplesDecVariavel implements DecVariavel{
     /**
      * Tipo da vari�vel declada.
      */
-    private Tipo tipo;
+    protected Tipo tipo;
     /**
      * Vari�vel declarada.
      */
-    private Id id;
+    protected Id id;
     /**
      * Express�o cujo valor ser� atribu�do � vari�vel.
      */
-    private Expressao expressao;
+    protected Expressao expressao;
     /**
      * Construtor.
      * @param tipo Tipo da vari�vel declarada.

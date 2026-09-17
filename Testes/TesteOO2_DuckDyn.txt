@@ -1,0 +1,41 @@
+// Duck typing dinamico: uma variavel dyn aceita qualquer objeto e as
+// chamadas de metodo sobre ela sao resolvidas em tempo de execucao.
+// Pato e Robo nao tem relacao de heranca, mas ambos "sabem" falar.
+{
+	classe Pato {
+		string nome = "Pato";
+		Pato(){ skip },
+		proc falar(){ write(this.nome ++ ": Quack") },
+		proc apresentar(string alguem){ write(this.nome ++ " cumprimenta " ++ alguem) }
+	},
+	classe Robo {
+		int serie = 42;
+		Robo(int serie){ this.serie := serie },
+		proc falar(){ write("Robo " ++ this.serie ++ ": Bip") },
+		proc apresentar(string alguem){ write("Robo " ++ this.serie ++ " escaneia " ++ alguem) }
+	},
+	classe Palco {
+		int vazio = 0;
+		Palco(){ skip },
+		proc anunciar(dyn artista){
+			write("Proximo artista:");
+			artista.falar()
+		}
+	};
+	{
+		dyn d := new Pato(),
+		Palco palco := new Palco();
+		d.falar();
+		d.apresentar("Maria");
+		d := new Robo(7);
+		d.falar();
+		d.apresentar("Joao");
+		palco.anunciar(d);
+		{
+			Pato p := new Pato();
+			palco.anunciar(p);
+			d := p;
+			d.falar()
+		}
+	}
+}

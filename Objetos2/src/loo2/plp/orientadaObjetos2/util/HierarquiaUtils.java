@@ -1,6 +1,12 @@
 package loo2.plp.orientadaObjetos2.util;
 
 import loo2.plp.expressions2.expression.Id;
+import loo2.plp.expressions2.memory.Ambiente;
+import loo2.plp.orientadaObjetos1.comando.Procedimento;
+import loo2.plp.orientadaObjetos1.excecao.declaracao.ProcedimentoNaoDeclaradoException;
+import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
+import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
+import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
 import loo2.plp.orientadaObjetos1.util.Tipo;
 import loo2.plp.orientadaObjetos1.util.TipoPrimitivo;
@@ -48,4 +54,34 @@ public class HierarquiaUtils {
 		return ehSubTipo;
 	}
 
+	/**
+	 * Procura o metodo <code>nomeMetodo</code> na classe dada e, se nao o
+	 * encontrar, nas suas superclasses. Funciona tanto com o ambiente de
+	 * compilacao quanto com o de execucao.
+	 * @throws ProcedimentoNaoDeclaradoException quando nenhuma classe da
+	 *         hierarquia declara o metodo.
+	 */
+	public static Procedimento getProcedimentoHierarquia(Ambiente ambiente, DefClasseOO2 defClasse, Id nomeMetodo)
+			throws ClasseNaoDeclaradaException, ProcedimentoNaoDeclaradoException {
+		Procedimento metodo = null;
+		try {
+			metodo = defClasse.getMetodo((loo2.plp.orientadaObjetos1.expressao.leftExpression.Id) nomeMetodo);
+		} catch (ProcedimentoNaoDeclaradoException e) {
+			if (defClasse.getNomeSuperClasse() != null) {
+				DefClasseOO2 defClasseMae = null;
+				if (ambiente instanceof AmbienteCompilacaoOO1) {
+					defClasseMae = (DefClasseOO2) ((AmbienteCompilacaoOO1) ambiente).getDefClasse(defClasse.getNomeSuperClasse());
+				} else if (ambiente instanceof AmbienteExecucaoOO1) {
+					defClasseMae = (DefClasseOO2) ((AmbienteExecucaoOO1) ambiente).getDefClasse(defClasse.getNomeSuperClasse());
+				}
+				if (defClasseMae != null) {
+					metodo = getProcedimentoHierarquia(ambiente, defClasseMae, nomeMetodo);
+				}
+			}
+		}
+		if (metodo == null) {
+			throw new ProcedimentoNaoDeclaradoException(nomeMetodo);
+		}
+		return metodo;
+	}
 }

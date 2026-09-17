@@ -1,0 +1,15 @@
+// Um valor dyn nao pode fluir para uma variavel de tipo estatico:
+// a atribuicao p := d e rejeitada pelo verificador de tipos ("Erro de tipo").
+{
+	classe Pato {
+		string nome = "Pato";
+		Pato(){ skip },
+		proc falar(){ write(this.nome ++ ": Quack") }
+	};
+	{
+		dyn d := new Pato(),
+		Pato p = null;
+		p := d;
+		p.falar()
+	}
+}

@@ -1,0 +1,15 @@
+// Duck typing dinamico: o metodo existe, mas os argumentos sao verificados
+// so em tempo de execucao. apresentar espera string e recebe int.
+{
+	classe Pato {
+		string nome = "Pato";
+		Pato(){ skip },
+		proc apresentar(string alguem){ write(this.nome ++ " cumprimenta " ++ alguem) }
+	};
+	{
+		dyn d := new Pato();
+		d.apresentar("Maria");
+		d.apresentar(3);
+		write("nao deve chegar aqui")
+	}
+}
