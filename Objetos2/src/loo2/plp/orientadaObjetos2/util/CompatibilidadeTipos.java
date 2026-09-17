@@ -20,6 +20,7 @@ import loo2.plp.orientadaObjetos1.util.TipoPrimitivo;
 import loo2.plp.orientadaObjetos2.excecao.execucao.ChamadaMetodoInvalidaException;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
+import loo2.plp.orientadaObjetos2.memoria.DefProtocolo;
 
 /**
  * Regras de compatibilidade entre tipos de OO2, centralizadas em um unico
@@ -33,7 +34,11 @@ import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
  * de referencia (classe, <code>null</code> ou <code>dyn</code>);</li>
  * <li>os tipos sao iguais;</li>
  * <li><code>esperado</code> e uma classe e <code>real</code> e
- * <code>null</code> ou uma subclasse dela.</li>
+ * <code>null</code> ou uma subclasse dela;</li>
+ * <li><code>esperado</code> e um protocolo e <code>real</code> e
+ * <code>null</code>, uma classe que possui todos os metodos exigidos ou um
+ * protocolo que exige pelo menos esses metodos (tipagem estrutural, ver
+ * {@link ProtocoloUtils}).</li>
  * </ul>
  * Um valor <code>dyn</code> nunca e aceito onde se espera um tipo estatico:
  * nao ha como garantir a compatibilidade antes da execucao.
@@ -59,11 +64,33 @@ public class CompatibilidadeTipos {
 			if (real.equals(TipoClasse.TIPO_NULL)) {
 				return true;
 			}
+			DefProtocolo protocolo = ProtocoloUtils.getDefProtocolo(esperado.getTipo(), ambiente);
+			if (protocolo != null) {
+				return satisfazProtocolo(real, protocolo, ambiente);
+			}
 			if (real instanceof TipoClasse && ambiente instanceof AmbienteCompilacaoOO2) {
 				return HierarquiaUtils.ehSubTipo(real, esperado, (AmbienteCompilacaoOO2) ambiente);
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Verifica se o tipo <code>real</code> (classe ou protocolo) satisfaz
+	 * estruturalmente o protocolo esperado.
+	 */
+	private static boolean satisfazProtocolo(Tipo real, DefProtocolo protocolo, AmbienteCompilacaoOO1 ambiente)
+			throws ClasseNaoDeclaradaException {
+		if (!(real instanceof TipoClasse)) {
+			return false;
+		}
+		DefProtocolo protocoloReal = ProtocoloUtils.getDefProtocolo(real.getTipo(), ambiente);
+		if (protocoloReal != null) {
+			return ProtocoloUtils.protocoloSatisfaz(protocoloReal, protocolo);
+		}
+		DefClasse classeReal = ambiente.getDefClasse(real.getTipo());
+		return classeReal instanceof DefClasseOO2
+				&& ProtocoloUtils.classeSatisfaz((DefClasseOO2) classeReal, protocolo, ambiente);
 	}
 
 	/**
@@ -95,9 +122,15 @@ public class CompatibilidadeTipos {
 		if (formal instanceof TipoDinamico) {
 			return true;
 		}
-		// Tipo classe: a classe real do objeto deve ser a esperada ou uma subclasse.
 		Id classe = ambiente.getObjeto((ValorRef) valor).getClasse();
 		Id esperada = formal.getTipo();
+		// Protocolo: a classe real do objeto deve possuir os metodos exigidos.
+		DefProtocolo protocolo = ProtocoloUtils.getDefProtocolo(esperada, ambiente);
+		if (protocolo != null) {
+			DefClasse def = ambiente.getDefClasse(classe);
+			return def instanceof DefClasseOO2 && ProtocoloUtils.classeSatisfaz((DefClasseOO2) def, protocolo, ambiente);
+		}
+		// Tipo classe: a classe real do objeto deve ser a esperada ou uma subclasse.
 		while (classe != null) {
 			if (classe.equals(esperada)) {
 				return true;
@@ -106,6 +139,17 @@ public class CompatibilidadeTipos {
 			classe = (def instanceof DefClasseOO2) ? ((DefClasseOO2) def).getNomeSuperClasse() : null;
 		}
 		return false;
+	}
+
+	/**
+	 * Descricao legivel de um valor para mensagens de erro: objetos sao
+	 * descritos pela classe, os demais pelo proprio valor.
+	 */
+	private static String descreve(Valor valor, AmbienteExecucaoOO1 ambiente) throws ObjetoNaoDeclaradoException {
+		if (valor instanceof ValorRef) {
+			return "objeto da classe " + ambiente.getObjeto((ValorRef) valor).getClasse();
+		}
+		return String.valueOf(valor);
 	}
 
 	/**
@@ -128,7 +172,7 @@ public class CompatibilidadeTipos {
 			Valor valor = valores.getHead();
 			if (!ehCompativelEmExecucao(formal, valor, ambiente)) {
 				throw new ChamadaMetodoInvalidaException("Argumento " + posicao + " de " + nomeMetodo
-						+ " e incompativel: esperado " + formal + ", recebido " + valor + ".");
+						+ " e incompativel: esperado " + formal + ", recebido " + descreve(valor, ambiente) + ".");
 			}
 			formais = (ListaDeclaracaoParametro) formais.getTail();
 			valores = (ListaValor) valores.getTail();

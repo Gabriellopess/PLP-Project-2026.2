@@ -11,19 +11,29 @@ import loo2.plp.orientadaObjetos1.expressao.valor.ValorNull;
 import loo2.plp.orientadaObjetos1.memoria.ContextoExecucaoOO1;
 import loo2.plp.orientadaObjetos1.memoria.DefClasse;
 import loo2.plp.orientadaObjetos1.memoria.colecao.ListaValor;
+import loo2.plp.orientadaObjetos2.excecao.declaracao.ProtocoloJaDeclaradoException;
+import loo2.plp.orientadaObjetos2.excecao.declaracao.ProtocoloNaoDeclaradoException;
 import loo2.plp.orientadaObjetos2.util.SuperClasseMap;
 
 public class ContextoExecucaoOO2 extends ContextoExecucaoOO1 implements AmbienteExecucaoOO2 {
 	private ArrayList<SuperClasseMap> arraySuperClasse;
 
+	/**
+	 * Definicoes dos protocolos do programa (usadas na checagem em execucao
+	 * das chamadas sobre valores dyn).
+	 */
+	private HashMap<Id, DefProtocolo> mapDefProtocolo;
+
 	public ContextoExecucaoOO2() {
 		super();
 		arraySuperClasse = new ArrayList <SuperClasseMap> ();
+		mapDefProtocolo = new HashMap<Id, DefProtocolo>();
 	}
 	
 	public ContextoExecucaoOO2(AmbienteExecucaoOO2 ambiente) throws VariavelJaDeclaradaException {
 		super(ambiente);
 		arraySuperClasse = ((AmbienteExecucaoOO2) ambiente).getMapSuperClasse();
+		mapDefProtocolo = ((AmbienteExecucaoOO2) ambiente).getMapDefProtocolo();
 		HashMap<Id, Valor> aux = new HashMap<Id, Valor>();
 		aux.put(new Id("super"), new ValorNull());
 		getPilha().push(aux);
@@ -32,6 +42,7 @@ public class ContextoExecucaoOO2 extends ContextoExecucaoOO1 implements Ambiente
 	public ContextoExecucaoOO2(ListaValor entrada) throws VariavelJaDeclaradaException {
 		super(entrada);
 		arraySuperClasse = new ArrayList <SuperClasseMap> ();
+		mapDefProtocolo = new HashMap<Id, DefProtocolo>();
 		HashMap<Id, Valor> aux = new HashMap<Id, Valor>();
 		aux.put(new Id("super"), new ValorNull());
 		getPilha().push(aux);
@@ -65,5 +76,23 @@ public class ContextoExecucaoOO2 extends ContextoExecucaoOO1 implements Ambiente
 	
 	public ArrayList<SuperClasseMap> getMapSuperClasse() {
 		return arraySuperClasse;
+	}
+
+	public void mapDefProtocolo(Id protocolo, DefProtocolo defProtocolo) throws ProtocoloJaDeclaradoException {
+		if (mapDefProtocolo.put(protocolo, defProtocolo) != null) {
+			throw new ProtocoloJaDeclaradoException(protocolo);
+		}
+	}
+
+	public DefProtocolo getDefProtocolo(Id protocolo) throws ProtocoloNaoDeclaradoException {
+		DefProtocolo result = mapDefProtocolo.get(protocolo);
+		if (result == null) {
+			throw new ProtocoloNaoDeclaradoException(protocolo);
+		}
+		return result;
+	}
+
+	public HashMap<Id, DefProtocolo> getMapDefProtocolo() {
+		return mapDefProtocolo;
 	}
 }

@@ -1,0 +1,31 @@
+// Combinacao das duas formas: chamada sobre dyn (verificada em execucao)
+// cujo parametro formal e um protocolo. Pato satisfaz Falante e a chamada
+// funciona; Pedra nao satisfaz e a segunda chamada falha em execucao.
+{
+	protocolo Falante {
+		proc falar()
+	},
+	classe Pato {
+		int patas = 2;
+		Pato(){ skip },
+		proc falar(){ write("Quack") }
+	},
+	classe Pedra {
+		int peso = 10;
+		Pedra(){ skip },
+		proc pesar(){ write(this.peso) }
+	},
+	classe Palco {
+		int vazio = 0;
+		Palco(){ skip },
+		proc anunciar(Falante artista){ artista.falar() }
+	};
+	{
+		dyn palco := new Palco(),
+		Pato pato := new Pato(),
+		Pedra pedra := new Pedra();
+		palco.anunciar(pato);
+		palco.anunciar(pedra);
+		write("nao deve chegar aqui")
+	}
+}

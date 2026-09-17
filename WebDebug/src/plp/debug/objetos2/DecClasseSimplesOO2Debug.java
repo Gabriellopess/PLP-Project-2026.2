@@ -54,6 +54,7 @@ public class DecClasseSimplesOO2Debug extends DecClasseSimplesOO2 {
 			ProcedimentoNaoDeclaradoException,
 			ProcedimentoJaDeclaradoException, ConstrutorNaoDeclaradoException {
 
+		verificaNomeLivre(ambiente);
 		// Verifica se a super classe já foi declarada
 		if (nomeSuperClasse != null) {
 			ambiente.mapSuperClasse(nomeClasse, nomeSuperClasse);

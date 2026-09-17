@@ -1,0 +1,19 @@
+// Papagaio tem apresentar, mas com parametro int em vez de string:
+// a assinatura nao casa e a atribuicao e rejeitada ("Erro de tipo").
+{
+	protocolo Falante {
+		proc falar(),
+		proc apresentar(string alguem)
+	},
+	classe Papagaio {
+		int idade = 3;
+		Papagaio(){ skip },
+		proc falar(){ write("Loro") },
+		proc apresentar(int vezes){ write(vezes) }
+	};
+	{
+		Falante f = null;
+		f := new Papagaio();
+		f.falar()
+	}
+}

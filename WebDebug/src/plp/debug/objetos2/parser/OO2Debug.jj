@@ -90,6 +90,7 @@ import loo2.plp.orientadaObjetos2.declaracao.DecOO;
 import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
 import loo2.plp.orientadaObjetos2.declaracao.protocolo.DecProtocolo;
 import loo2.plp.orientadaObjetos2.declaracao.protocolo.ListaAssinatura;
+import loo2.plp.orientadaObjetos2.util.TipoClasseOO2;
 import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 /**
@@ -1644,7 +1645,7 @@ Tipo PTipoClasse() :
   (
     id = PId()
     {
-      retorno = new TipoClasse(id);
+      retorno = new TipoClasseOO2(id);
     }
   )
   {

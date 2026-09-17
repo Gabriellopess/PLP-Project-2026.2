@@ -17,6 +17,7 @@ import loo2.plp.orientadaObjetos2.declaracao.DecConstrutor;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
+import loo2.plp.orientadaObjetos2.util.ProtocoloUtils;
 
 public class DecClasseSimplesOO2 extends DecClasseSimples implements DecOO {
 	
@@ -78,6 +79,8 @@ public class DecClasseSimplesOO2 extends DecClasseSimples implements DecOO {
 			ProcedimentoNaoDeclaradoException,
 			ProcedimentoJaDeclaradoException, ConstrutorNaoDeclaradoException {
 		
+		verificaNomeLivre(ambiente);
+
 		// Verifica se a super classe j� foi declarada
 		if (nomeSuperClasse != null) {
 			ambiente.mapSuperClasse(nomeClasse, nomeSuperClasse);
@@ -112,6 +115,16 @@ public class DecClasseSimplesOO2 extends DecClasseSimples implements DecOO {
 			DefClasseOO2 defClasseMae = (DefClasseOO2) ambiente.getDefClasse(nomeSuperClasse);
 			defClasseMae.getDecVariavel().checaTipo(ambiente);
 			this.checaTipoVariaveisClasseMae(ambiente, defClasseMae.getNomeSuperClasse());
+		}
+	}
+
+	/**
+	 * Classes e protocolos compartilham o espaco de nomes dos tipos: uma
+	 * classe nao pode ter o nome de um protocolo ja declarado.
+	 */
+	protected void verificaNomeLivre(AmbienteCompilacaoOO2 ambiente) throws ClasseJaDeclaradaException {
+		if (ProtocoloUtils.ehProtocolo(nomeClasse, ambiente)) {
+			throw new ClasseJaDeclaradaException(nomeClasse);
 		}
 	}
 }

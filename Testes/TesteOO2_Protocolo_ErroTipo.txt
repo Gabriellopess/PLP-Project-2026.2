@@ -1,0 +1,16 @@
+// Pedra nao possui apresentar(string): nao satisfaz Falante ("Erro de tipo").
+{
+	protocolo Falante {
+		proc falar(),
+		proc apresentar(string alguem)
+	},
+	classe Pedra {
+		int peso = 10;
+		Pedra(){ skip },
+		proc falar(){ write("...") }
+	};
+	{
+		Falante f := new Pedra();
+		f.falar()
+	}
+}

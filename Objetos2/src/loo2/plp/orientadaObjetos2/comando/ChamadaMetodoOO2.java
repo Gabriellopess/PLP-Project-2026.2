@@ -27,8 +27,10 @@ import loo2.plp.orientadaObjetos2.excecao.execucao.ChamadaMetodoInvalidaExceptio
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.ContextoExecucaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
+import loo2.plp.orientadaObjetos2.memoria.DefProtocolo;
 import loo2.plp.orientadaObjetos2.util.CompatibilidadeTipos;
 import loo2.plp.orientadaObjetos2.util.HierarquiaUtils;
+import loo2.plp.orientadaObjetos2.util.ProtocoloUtils;
 import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 /**
@@ -40,6 +42,8 @@ import loo2.plp.orientadaObjetos2.util.TipoDinamico;
  * <ul>
  * <li>classe: o metodo deve existir na classe declarada ou em uma superclasse
  * (tipagem nominal, como em OO2 original);</li>
+ * <li>protocolo: o metodo deve ser uma das assinaturas do protocolo e os
+ * argumentos devem casar com ela (duck typing estatico);</li>
  * <li><code>dyn</code>: nada e verificado sobre o metodo; apenas os argumentos
  * precisam estar bem tipados. Existencia do metodo e compatibilidade dos
  * argumentos sao checadas em tempo de execucao (duck typing dinamico).</li>
@@ -99,6 +103,22 @@ public class ChamadaMetodoOO2 extends ChamadaMetodo {
 		}
 
 		boolean resposta;
+		DefProtocolo protocolo = ProtocoloUtils.getDefProtocolo(tipoReceptor.getTipo(), ambiente);
+		if (protocolo != null) {
+			// Duck typing estatico: o metodo deve ser uma assinatura do protocolo.
+			// A assinatura nao tem corpo, mas basta para checar os argumentos.
+			try {
+				Procedimento assinatura = new Procedimento(
+						protocolo.getAssinatura(nomeMetodo).getParametrosFormais(), null);
+				ambiente.incrementa();
+				resposta = new ChamadaProcedimentoOO2(assinatura, parametrosReais).checaTipo(ambiente);
+				ambiente.restaura();
+			} catch (ProcedimentoNaoDeclaradoException e) {
+				resposta = false;
+			}
+			return resposta;
+		}
+
 		// Tipagem nominal: o metodo deve existir na classe declarada ou em uma
 		// superclasse; caso contrario ProcedimentoNaoDeclaradoException e lancada
 		// e checaTipo retorna false.

@@ -44,10 +44,12 @@ public class DecProtocolo implements DecOO {
 	}
 
 	/**
-	 * Protocolos existem apenas em tempo de compilacao; em execucao nao ha
-	 * nada a elaborar.
+	 * Registra o protocolo no ambiente de execucao. Ele nao participa da
+	 * execucao normal, mas e consultado na checagem em tempo de execucao das
+	 * chamadas sobre valores <code>dyn</code> cujos parametros sao protocolos.
 	 */
-	public AmbienteExecucaoOO2 elabora(AmbienteExecucaoOO2 ambiente) {
+	public AmbienteExecucaoOO2 elabora(AmbienteExecucaoOO2 ambiente) throws ClasseJaDeclaradaException {
+		ambiente.mapDefProtocolo(nome, new DefProtocolo(nome, assinaturas));
 		return ambiente;
 	}
 
