@@ -3,21 +3,17 @@ package loo2.plp.orientadaObjetos2.declaracao;
 import loo2.plp.expressions2.memory.VariavelJaDeclaradaException;
 import loo2.plp.expressions2.memory.VariavelNaoDeclaradaException;
 import loo2.plp.imperative1.util.Lista;
+import loo2.plp.orientadaObjetos1.declaracao.classe.DecClasse;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseJaDeclaradaException;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ProcedimentoJaDeclaradoException;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ProcedimentoNaoDeclaradoException;
+import loo2.plp.orientadaObjetos2.declaracao.classe.DecClasseSimplesOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
 
-/**
- * Lista de declaracoes de alto nivel (classes e protocolos) de um programa.
- *
- * <pre>
- * ListaDeclaracaoOO ::= DecOO | DecOO "," ListaDeclaracaoOO
- * </pre>
- */
-public class ListaDeclaracaoOO extends Lista<DecOO> {
+
+public class ListaDeclaracaoOO extends Lista<DecClasse> {
 	/**
 	 * Construtor.
 	 */
@@ -27,22 +23,22 @@ public class ListaDeclaracaoOO extends Lista<DecOO> {
 	/**
 	 * Construtor.
 	 * 
-	 * @param decOO
-	 *            Declaracao unica da lista.
+	 * @param DeclaracaoOO
+	 *            DeclaracaoOO que compoe a tail.
 	 */
-	public ListaDeclaracaoOO(DecOO decOO) {
+	public ListaDeclaracaoOO(DecClasse decOO) {
 		super(decOO, new ListaDeclaracaoOO());
 	}
 
 	/**
 	 * Construtor.
 	 * 
-	 * @param decOO
-	 *            Primeira declaracao da lista.
-	 * @param lista
-	 *            Restante das declaracoes.
+	 * @param declaracaoOO
+	 *            Primeira declaracao da tail.
+	 * @param listaDeclaracaoOO
+	 *            Restante da tail de declaracoes.
 	 */
-	public ListaDeclaracaoOO(DecOO decOO, ListaDeclaracaoOO lista) {
+	public ListaDeclaracaoOO(DecClasse decOO, ListaDeclaracaoOO lista) {
 		super(decOO, lista);
 	}
 
@@ -52,9 +48,11 @@ public class ListaDeclaracaoOO extends Lista<DecOO> {
 			ProcedimentoNaoDeclaradoException, ProcedimentoJaDeclaradoException, ConstrutorNaoDeclaradoException {
 		
 		if (length() == 1) {
-			getHead().elabora(ambiente);
+			DecClasseSimplesOO2 classe = (DecClasseSimplesOO2) getHead();
+			classe.elabora(ambiente);
 		} else {
-			getHead().elabora(ambiente);
+			DecClasseSimplesOO2 classe = (DecClasseSimplesOO2) getHead();
+			classe.elabora(ambiente);
 			((ListaDeclaracaoOO)getTail()).elabora(ambiente);
 		}
 		
@@ -68,9 +66,11 @@ public class ListaDeclaracaoOO extends Lista<DecOO> {
 		
 		boolean ret = false;
 		if (length() == 1) {
-			ret = getHead().checaTipo(ambiente);
+			DecClasseSimplesOO2 classe = (DecClasseSimplesOO2) getHead();
+			ret = classe.checaTipo(ambiente);
 		} else {
-			ret = getHead().checaTipo(ambiente);
+			DecClasseSimplesOO2 classe = (DecClasseSimplesOO2) getHead();
+			ret = classe.checaTipo(ambiente);
 			if (ret)
 				ret = ((ListaDeclaracaoOO)getTail()).checaTipo(ambiente);
 		}

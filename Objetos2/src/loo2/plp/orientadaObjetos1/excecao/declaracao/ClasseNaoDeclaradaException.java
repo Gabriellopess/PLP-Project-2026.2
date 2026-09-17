@@ -13,14 +13,6 @@ public class ClasseNaoDeclaradaException extends Exception {
      * @param id Identificador representando a classe.
      */
     public ClasseNaoDeclaradaException(Id id) {
-        this("Classe " + id + " n�o declarada.");
-    }
-
-    /**
-     * Construtor com mensagem livre, usado por subclasses.
-     * @param mensagem a mensagem da excecao.
-     */
-    protected ClasseNaoDeclaradaException(String mensagem) {
-        super(mensagem);
+        super("Classe " + id + " n�o declarada.");
     }
 }

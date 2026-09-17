@@ -100,16 +100,4 @@ public class AmbienteCompilacaoOO2Debug implements AmbienteCompilacaoOO2, ScopeA
 	public SuperClasseMap getSuperClasse(Id classe) throws ClasseNaoDeclaradaException {
 		return target.getSuperClasse(classe);
 	}
-
-	@Override
-	public void mapDefProtocolo(Id protocolo, loo2.plp.orientadaObjetos2.memoria.DefProtocolo defProtocolo)
-			throws loo2.plp.orientadaObjetos2.excecao.declaracao.ProtocoloJaDeclaradoException {
-		target.mapDefProtocolo(protocolo, defProtocolo);
-	}
-
-	@Override
-	public loo2.plp.orientadaObjetos2.memoria.DefProtocolo getDefProtocolo(Id protocolo)
-			throws loo2.plp.orientadaObjetos2.excecao.declaracao.ProtocoloNaoDeclaradoException {
-		return target.getDefProtocolo(protocolo);
-	}
 }

@@ -7,7 +7,6 @@ import loo2.plp.orientadaObjetos1.expressao.leftExpression.Id;
 import loo2.plp.orientadaObjetos1.expressao.leftExpression.LeftExpression;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
 import loo2.plp.orientadaObjetos1.util.Tipo;
-import loo2.plp.orientadaObjetos1.util.TipoClasse;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
 
@@ -39,10 +38,6 @@ public class AcessoAtributoIdOO2 extends AcessoAtributoId{
         if(av.checaTipo(ambiente)) {
             try{
                 Tipo tipo = av.getTipo(ambiente);
-                if (!(tipo instanceof TipoClasse)) {
-                    // dyn e protocolos nao expoem atributos estaticamente
-                    return false;
-                }
                 DefClasseOO2 defClasse = (DefClasseOO2) ambiente.getDefClasse(tipo.getTipo());
                 
                 if (defClasse.getNomeSuperClasse() != null) {
@@ -70,10 +65,6 @@ public class AcessoAtributoIdOO2 extends AcessoAtributoId{
 	public Tipo getTipo(AmbienteCompilacaoOO1 ambiente)
 			throws VariavelNaoDeclaradaException, ClasseNaoDeclaradaException {
 		Tipo tipo = null;
-		Tipo tipoReceptor = av.getTipo(ambiente);
-		if (!(tipoReceptor instanceof TipoClasse)) {
-			throw new ClasseNaoDeclaradaException(tipoReceptor.getTipo());
-		}
 		try{
 			tipo = super.getTipo(ambiente);
 		} catch(VariavelNaoDeclaradaException vnde){

@@ -24,17 +24,17 @@ public class ChamadaProcedimento implements Comando {
     /**
      * � o procedimento
      */
-    protected Procedimento procedimento;
+    private Procedimento procedimento;
 
     /**
      * S�o os parametros do procedimento
      */
-    protected ListaExpressao parametrosReais;
+    private ListaExpressao parametrosReais;
 
     /**
      * Valores que serao atribu�dos aos parametros reais
      */
-    protected ListaValor valoresParametros;
+    private ListaValor valoresParametros;
 
     /**
      * Contrutor Default.

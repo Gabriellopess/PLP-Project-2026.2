@@ -13,14 +13,6 @@ public class ClasseJaDeclaradaException extends Exception {
      * @param id Identificador representando a classe.
      */
     public ClasseJaDeclaradaException(Id id) {
-        this("Classe " + id + " j� declarada.");
-    }
-
-    /**
-     * Construtor com mensagem livre, usado por subclasses.
-     * @param mensagem a mensagem da excecao.
-     */
-    protected ClasseJaDeclaradaException(String mensagem) {
-        super(mensagem);
+        super("Classe " + id + " j� declarada.");
     }
 }

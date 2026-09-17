@@ -1,9 +1,6 @@
 package loo2.plp.orientadaObjetos2.memoria;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import loo2.plp.orientadaObjetos2.excecao.declaracao.ProtocoloJaDeclaradoException;
-import loo2.plp.orientadaObjetos2.excecao.declaracao.ProtocoloNaoDeclaradoException;
 
 import loo2.plp.expressions2.expression.Id;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
@@ -32,20 +29,5 @@ public interface AmbienteExecucaoOO2 extends AmbienteExecucaoOO1{
 	 * Retorna todos os mapeamentos de heran�a do ambiente de execucao
 	 * @return
 	 */
-	public ArrayList<SuperClasseMap> getMapSuperClasse();
-
-	/**
-	 * Mapeia um identificador de protocolo a sua definicao.
-	 */
-	public void mapDefProtocolo(Id protocolo, DefProtocolo defProtocolo) throws ProtocoloJaDeclaradoException;
-
-	/**
-	 * Recupera a definicao de um protocolo declarado no programa.
-	 */
-	public DefProtocolo getDefProtocolo(Id protocolo) throws ProtocoloNaoDeclaradoException;
-
-	/**
-	 * Mapeamento completo de protocolos, compartilhado entre contextos.
-	 */
-	public HashMap<Id, DefProtocolo> getMapDefProtocolo();	
+	public ArrayList<SuperClasseMap> getMapSuperClasse();	
 }

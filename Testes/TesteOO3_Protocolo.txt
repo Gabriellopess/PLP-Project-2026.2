@@ -1,0 +1,60 @@
+// Duck typing estatico: um protocolo descreve assinaturas de metodos e
+// qualquer classe que as possua satisfaz o protocolo sem declarar nada.
+// A verificacao continua sendo feita antes da execucao.
+{
+	protocolo Falante {
+		proc falar(),
+		proc apresentar(string alguem)
+	},
+	protocolo Apresentavel {
+		proc apresentar(string alguem)
+	},
+	classe Pato {
+		string nome = "Pato";
+		Pato(){ skip },
+		proc falar(){ write(this.nome ++ ": Quack") },
+		proc apresentar(string alguem){ write(this.nome ++ " cumprimenta " ++ alguem) }
+	},
+	classe Patinho extends Pato {
+		int idade = 1;
+		Patinho(){ this.nome := "Patinho" },
+		proc piar(){ write("piu") }
+	},
+	classe Robo {
+		int serie = 42;
+		Robo(int serie){ this.serie := serie },
+		proc falar(){ write("Robo " ++ this.serie ++ ": Bip") },
+		proc apresentar(string alguem){ write("Robo " ++ this.serie ++ " escaneia " ++ alguem) }
+	},
+	classe Palco {
+		Falante convidado = null;
+		Palco(){ skip },
+		proc anunciar(Falante artista){
+			write("Proximo artista:");
+			artista.falar()
+		},
+		proc convidar(Falante artista){
+			this.convidado := artista;
+			{ Falante c = this.convidado; c.apresentar("plateia") }
+		}
+	};
+	{
+		Falante f := new Pato(),
+		Palco palco := new Palco(),
+		Apresentavel a = null;
+		f.falar();
+		f := new Robo(7);
+		f.apresentar("Ana");
+		palco.anunciar(f);
+		{
+			Pato p := new Pato(),
+			Patinho pequeno := new Patinho();
+			palco.anunciar(p);
+			palco.convidar(pequeno);
+			f := pequeno;
+			f.falar();
+			a := f;
+			a.apresentar("todos")
+		}
+	}
+}
