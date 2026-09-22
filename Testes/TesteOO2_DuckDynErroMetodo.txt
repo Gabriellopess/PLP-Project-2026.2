@@ -1,0 +1,24 @@
+// Duck typing dinamico: o programa passa na verificacao de tipos, e a
+// chamada a um metodo que a classe real nao possui falha na execucao.
+// README, exemplo 2.
+// Resultado: erro-execucao
+// > Robo 7: Bip-bop
+// Erro esperado: classe Robo nao possui metodo nadar
+{
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") },
+    proc nadar() { write(this.nome ++ " nadando") }
+  },
+  classe Robo {
+    int serie = 0;
+    Robo(int serie) { this.serie := serie },
+    proc falar() { write("Robo " ++ this.serie ++ ": Bip-bop") }
+  };
+  {
+    dyn d := new Robo(7);
+    d.falar();
+    d.nadar()
+  }
+}

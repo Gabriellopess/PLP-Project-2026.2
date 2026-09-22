@@ -1,0 +1,17 @@
+// Protocolo nao tem atributos nem construtor, entao nao pode ser
+// instanciado com new.
+// Resultado: erro-tipo
+{
+  protocolo Falante {
+    proc falar()
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  };
+  {
+    Falante f := new Falante();
+    f.falar()
+  }
+}

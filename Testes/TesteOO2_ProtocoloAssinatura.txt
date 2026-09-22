@@ -1,0 +1,33 @@
+// Protocolo com parametros: ContadorInteiro satisfaz Contador. O nome do
+// parametro difere (n x passo), mas o tipo e igual.
+// README, exemplo 7.
+// Resultado: ok
+// > Valor: 3
+// > Valor: 5
+{
+  protocolo Contador {
+    proc incrementar(int passo)
+  },
+  classe ContadorInteiro {
+    int valor = 0;
+    ContadorInteiro() { skip },
+    proc incrementar(int n) {
+      this.valor := this.valor + n;
+      write("Valor: " ++ this.valor)
+    }
+  },
+  classe Usuario {
+    int usos = 0;
+    Usuario() { skip },
+    proc usar(Contador c, int passo) {
+      this.usos := this.usos + 1;
+      c.incrementar(passo)
+    }
+  };
+  {
+    Usuario u := new Usuario(),
+    ContadorInteiro ci := new ContadorInteiro();
+    u.usar(ci, 3);
+    u.usar(ci, 2)
+  }
+}

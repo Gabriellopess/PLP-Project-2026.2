@@ -1,0 +1,33 @@
+// Duck typing dinamico: parametro dyn aceita objetos de qualquer classe
+// (regra R6).
+// README, exemplo 3.
+// Resultado: ok
+// > Margarida: Quack!
+// > Robo 3: Bip-bop
+{
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  },
+  classe Robo {
+    int serie = 0;
+    Robo(int serie) { this.serie := serie },
+    proc falar() { write("Robo " ++ this.serie ++ ": Bip-bop") }
+  },
+  classe Coral {
+    int ensaios = 0;
+    Coral() { skip },
+    proc apresentar(dyn membro) {
+      this.ensaios := this.ensaios + 1;
+      membro.falar()
+    }
+  };
+  {
+    Coral c := new Coral(),
+    Pato p := new Pato("Margarida"),
+    Robo r := new Robo(3);
+    c.apresentar(p);
+    c.apresentar(r)
+  }
+}

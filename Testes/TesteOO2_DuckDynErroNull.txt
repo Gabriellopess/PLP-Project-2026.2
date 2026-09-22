@@ -1,0 +1,15 @@
+// Duck typing dinamico: chamar um metodo sobre null gera erro de execucao
+// com mensagem clara (hoje gera ClassCastException).
+// Resultado: erro-execucao
+// Erro esperado: chamada de falar sobre null
+{
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  };
+  {
+    dyn d = null;
+    d.falar()
+  }
+}

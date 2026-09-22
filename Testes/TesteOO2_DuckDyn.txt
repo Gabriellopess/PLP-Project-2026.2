@@ -1,0 +1,25 @@
+// Duck typing dinamico: uma variavel dyn recebe objetos de classes sem
+// relacao de heranca, e a mesma chamada e resolvida pela classe real.
+// README, exemplo 1.
+// Resultado: ok
+// > Donald: Quack!
+// > Robo 42: Bip-bop
+{
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") },
+    proc nadar() { write(this.nome ++ " nadando") }
+  },
+  classe Robo {
+    int serie = 0;
+    Robo(int serie) { this.serie := serie },
+    proc falar() { write("Robo " ++ this.serie ++ ": Bip-bop") }
+  };
+  {
+    dyn d := new Pato("Donald");
+    d.falar();
+    d := new Robo(42);
+    d.falar()
+  }
+}

@@ -1,0 +1,17 @@
+// Classes e protocolos compartilham o mesmo espaco de nomes: declarar uma
+// classe e um protocolo com o mesmo nome e erro de tipo.
+// Resultado: erro-tipo
+{
+  protocolo Pato {
+    proc falar()
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  };
+  {
+    Pato p := new Pato("Donald");
+    p.falar()
+  }
+}

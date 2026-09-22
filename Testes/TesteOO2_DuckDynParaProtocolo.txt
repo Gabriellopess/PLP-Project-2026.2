@@ -1,0 +1,36 @@
+// Um valor dyn passado para um parametro de protocolo e aceito na
+// compilacao (regra R7) e conferido na execucao: Pedra nao satisfaz Falante.
+// README, exemplo 9.
+// Resultado: erro-execucao
+// > Donald: Quack!
+// Erro esperado: argumento 1 de ouvir: Pedra nao satisfaz Falante
+{
+  protocolo Falante {
+    proc falar()
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  },
+  classe Pedra {
+    int peso = 0;
+    Pedra(int peso) { this.peso := peso },
+    proc rolar() { write("rolando") }
+  },
+  classe Plateia {
+    int ouvidos = 0;
+    Plateia() { skip },
+    proc ouvir(Falante f) {
+      this.ouvidos := this.ouvidos + 1;
+      f.falar()
+    }
+  };
+  {
+    Plateia pl := new Plateia(),
+    dyn d := new Pato("Donald");
+    pl.ouvir(d);
+    d := new Pedra(10);
+    pl.ouvir(d)
+  }
+}
