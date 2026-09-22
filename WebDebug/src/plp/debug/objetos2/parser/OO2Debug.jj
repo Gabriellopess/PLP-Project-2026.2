@@ -1110,7 +1110,7 @@ AcessoAtributoIdOO2 PAcessoAtributoIdChamador() :
 ListaDeclaracaoOO PListaDeclaracaoOO() :
 {
 	ListaDeclaracaoOO retorno;
-	DecClasse decClasse;
+	DecClasseSimplesOO2 decClasse;
 }
 {
   (
@@ -1130,14 +1130,14 @@ ListaDeclaracaoOO PListaDeclaracaoOO() :
  * DecClasse ::= "classe" Id ["extends" Id] "{" DecVariavel ";" DecConstrutor ";" DecProcedimento "}"
  **/
  
-DecClasse PDecClasseAtomica() :
+DecClasseSimplesOO2 PDecClasseAtomica() :
 {
   Id nomeClasse;
   Id superClasse = null;
   DecVariavel atributos;
   DecConstrutor decConstrutor = null;
   DecProcedimento metodos;
-  DecClasse resposta;
+  DecClasseSimplesOO2 resposta;
   Token classeToken;
   Token rbraceToken;
 }
@@ -1193,7 +1193,7 @@ DecClasse PDecClasseAtomica() :
  **/
 ListaDeclaracaoOO PDecClasseComposta() :
 {
-  DecClasse d1;
+  DecClasseSimplesOO2 d1;
   ListaDeclaracaoOO d2;
 }
 {

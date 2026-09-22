@@ -3,17 +3,15 @@ package loo2.plp.orientadaObjetos2.declaracao;
 import loo2.plp.expressions2.memory.VariavelJaDeclaradaException;
 import loo2.plp.expressions2.memory.VariavelNaoDeclaradaException;
 import loo2.plp.imperative1.util.Lista;
-import loo2.plp.orientadaObjetos1.declaracao.classe.DecClasse;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseJaDeclaradaException;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ProcedimentoJaDeclaradoException;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ProcedimentoNaoDeclaradoException;
-import loo2.plp.orientadaObjetos2.declaracao.classe.DecClasseSimplesOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
 
 
-public class ListaDeclaracaoOO extends Lista<DecClasse> {
+public class ListaDeclaracaoOO extends Lista<DecOO> {
 	/**
 	 * Construtor.
 	 */
@@ -26,7 +24,7 @@ public class ListaDeclaracaoOO extends Lista<DecClasse> {
 	 * @param DeclaracaoOO
 	 *            DeclaracaoOO que compoe a tail.
 	 */
-	public ListaDeclaracaoOO(DecClasse decOO) {
+	public ListaDeclaracaoOO(DecOO decOO) {
 		super(decOO, new ListaDeclaracaoOO());
 	}
 
@@ -38,7 +36,7 @@ public class ListaDeclaracaoOO extends Lista<DecClasse> {
 	 * @param listaDeclaracaoOO
 	 *            Restante da tail de declaracoes.
 	 */
-	public ListaDeclaracaoOO(DecClasse decOO, ListaDeclaracaoOO lista) {
+	public ListaDeclaracaoOO(DecOO decOO, ListaDeclaracaoOO lista) {
 		super(decOO, lista);
 	}
 
@@ -48,11 +46,11 @@ public class ListaDeclaracaoOO extends Lista<DecClasse> {
 			ProcedimentoNaoDeclaradoException, ProcedimentoJaDeclaradoException, ConstrutorNaoDeclaradoException {
 		
 		if (length() == 1) {
-			DecClasseSimplesOO2 classe = (DecClasseSimplesOO2) getHead();
-			classe.elabora(ambiente);
+			DecOO declaracao = getHead();
+			declaracao.elabora(ambiente);
 		} else {
-			DecClasseSimplesOO2 classe = (DecClasseSimplesOO2) getHead();
-			classe.elabora(ambiente);
+			DecOO declaracao = getHead();
+			declaracao.elabora(ambiente);
 			((ListaDeclaracaoOO)getTail()).elabora(ambiente);
 		}
 		
@@ -66,11 +64,11 @@ public class ListaDeclaracaoOO extends Lista<DecClasse> {
 		
 		boolean ret = false;
 		if (length() == 1) {
-			DecClasseSimplesOO2 classe = (DecClasseSimplesOO2) getHead();
-			ret = classe.checaTipo(ambiente);
+			DecOO declaracao = getHead();
+			ret = declaracao.checaTipo(ambiente);
 		} else {
-			DecClasseSimplesOO2 classe = (DecClasseSimplesOO2) getHead();
-			ret = classe.checaTipo(ambiente);
+			DecOO declaracao = getHead();
+			ret = declaracao.checaTipo(ambiente);
 			if (ret)
 				ret = ((ListaDeclaracaoOO)getTail()).checaTipo(ambiente);
 		}
