@@ -1,0 +1,38 @@
+// Declaracao de protocolos sem uso em chamadas: protocolos com parametros
+// primitivos, dyn, de classe e do proprio protocolo sao aceitos, e um metodo
+// de classe pode ter parametro do tipo de um protocolo. Um protocolo so pode
+// citar classes ja declaradas (Criador vem depois de Pato). O programa roda
+// normalmente (etapa 3: registro e verificacao de protocolos).
+// Resultado: ok
+// > Donald: Quack!
+// > Total: 1
+{
+  protocolo Falante {
+    proc falar(),
+    proc repetir(int vezes, string sufixo),
+    proc conversar(Falante outro, dyn qualquer)
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  },
+  protocolo Criador {
+    proc criar(Pato modelo)
+  },
+  classe Registro {
+    int total = 0;
+    Registro() { skip },
+    proc registrar(Falante f) { this.total := this.total + 1 },
+    proc contar() {
+      this.total := this.total + 1;
+      write("Total: " ++ this.total)
+    }
+  };
+  {
+    Pato p := new Pato("Donald"),
+    Registro r := new Registro();
+    p.falar();
+    r.contar()
+  }
+}

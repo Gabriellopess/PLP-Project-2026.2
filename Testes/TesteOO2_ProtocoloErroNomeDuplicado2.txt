@@ -1,0 +1,18 @@
+// Classes e protocolos compartilham o espaco de nomes: um protocolo com o
+// nome de uma classe ja declarada e erro de tipo (a ordem inversa esta em
+// TesteOO2_ProtocoloErroNomeDuplicado.txt).
+// Resultado: erro-tipo
+{
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  },
+  protocolo Pato {
+    proc falar()
+  };
+  {
+    Pato p := new Pato("Donald");
+    p.falar()
+  }
+}

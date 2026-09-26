@@ -1,0 +1,16 @@
+// Uma assinatura nao pode repetir o nome de um parametro.
+// Resultado: erro-tipo
+{
+  protocolo Somador {
+    proc somar(int x, int x)
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  };
+  {
+    Pato p := new Pato("Donald");
+    p.falar()
+  }
+}

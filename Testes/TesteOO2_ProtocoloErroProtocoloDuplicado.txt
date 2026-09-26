@@ -1,0 +1,19 @@
+// Dois protocolos com o mesmo nome e erro de tipo.
+// Resultado: erro-tipo
+{
+  protocolo Falante {
+    proc falar()
+  },
+  protocolo Falante {
+    proc gritar()
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  };
+  {
+    Pato p := new Pato("Donald");
+    p.falar()
+  }
+}

@@ -1,0 +1,17 @@
+// Um protocolo nao pode ter duas assinaturas com o mesmo nome de metodo.
+// Resultado: erro-tipo
+{
+  protocolo Falante {
+    proc falar(),
+    proc falar(int vezes)
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  };
+  {
+    Pato p := new Pato("Donald");
+    p.falar()
+  }
+}

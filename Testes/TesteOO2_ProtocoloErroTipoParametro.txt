@@ -1,0 +1,17 @@
+// Assinatura com parametro de um tipo que nao existe (nem classe nem
+// protocolo) e erro de tipo.
+// Resultado: erro-tipo
+{
+  protocolo Falante {
+    proc falar(Inexistente ouvinte)
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  };
+  {
+    Pato p := new Pato("Donald");
+    p.falar()
+  }
+}
