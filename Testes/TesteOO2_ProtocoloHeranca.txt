@@ -1,0 +1,43 @@
+// Protocolo e heranca: Marreco satisfaz Anfibio usando falar() herdado de
+// Ave (regra R4 com busca na hierarquia), e Anfibio e compativel com
+// Falante porque tem todas as suas assinaturas (regra R5).
+// README, exemplo 8.
+// Resultado: ok
+// > Pato-real: piu
+// > Pato-real nadando
+// > Pato-real: piu
+{
+  protocolo Falante {
+    proc falar()
+  },
+  protocolo Anfibio {
+    proc falar(),
+    proc nadar()
+  },
+  classe Ave {
+    string nome = "";
+    Ave(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": piu") }
+  },
+  classe Marreco extends Ave {
+    int penas = 0;
+    Marreco(string nome) { this.nome := nome },
+    proc nadar() { write(this.nome ++ " nadando") }
+  },
+  classe Lago {
+    int visitas = 0;
+    Lago() { skip },
+    proc receber(Anfibio a) {
+      this.visitas := this.visitas + 1;
+      a.falar();
+      a.nadar()
+    },
+    proc ouvir(Falante f) { f.falar() }
+  };
+  {
+    Lago l := new Lago(),
+    Anfibio a := new Marreco("Pato-real");
+    l.receber(a);
+    l.ouvir(a)
+  }
+}

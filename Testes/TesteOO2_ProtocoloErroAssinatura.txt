@@ -1,0 +1,27 @@
+// Protocolo com parametros: ContadorTexto tem incrementar, mas com
+// parametro string em vez de int, entao nao satisfaz Contador.
+// README, exemplo 7.
+// Resultado: erro-tipo
+{
+  protocolo Contador {
+    proc incrementar(int passo)
+  },
+  classe ContadorTexto {
+    string valor = "";
+    ContadorTexto() { skip },
+    proc incrementar(string s) { this.valor := this.valor ++ s }
+  },
+  classe Usuario {
+    int usos = 0;
+    Usuario() { skip },
+    proc usar(Contador c) {
+      this.usos := this.usos + 1;
+      c.incrementar(1)
+    }
+  };
+  {
+    Usuario u := new Usuario(),
+    ContadorTexto ct := new ContadorTexto();
+    u.usar(ct)
+  }
+}

@@ -1,0 +1,19 @@
+// Protocolo e heranca: Ave tem falar() mas nao nadar(), entao nao
+// satisfaz Anfibio (a subclasse Marreco satisfaz, a superclasse nao).
+// README, exemplo 8.
+// Resultado: erro-tipo
+{
+  protocolo Anfibio {
+    proc falar(),
+    proc nadar()
+  },
+  classe Ave {
+    string nome = "";
+    Ave(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": piu") }
+  };
+  {
+    Anfibio a := new Ave("Pardal");
+    a.falar()
+  }
+}

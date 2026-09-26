@@ -1,0 +1,20 @@
+// Duck typing dinamico: o metodo existe com a aridade certa, mas o tipo
+// do argumento nao e compativel com o parametro formal.
+// Resultado: erro-execucao
+// > Contador: 5
+// Erro esperado: argumento 1 de incrementar incompativel
+{
+  classe Contador {
+    int valor = 0;
+    Contador() { skip },
+    proc incrementar(int passo) {
+      this.valor := this.valor + passo;
+      write("Contador: " ++ this.valor)
+    }
+  };
+  {
+    dyn d := new Contador();
+    d.incrementar(5);
+    d.incrementar("cinco")
+  }
+}

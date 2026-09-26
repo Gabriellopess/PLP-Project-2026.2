@@ -1,0 +1,37 @@
+// Protocolo: Pato e Robo satisfazem Falante sem declarar isso, e sao
+// aceitos como argumento de um parametro Falante (regra R4).
+// README, exemplo 4.
+// Resultado: ok
+// > Donald: Quack!
+// > Robo 42: Bip-bop
+{
+  protocolo Falante {
+    proc falar()
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") },
+    proc nadar() { write(this.nome ++ " nadando") }
+  },
+  classe Robo {
+    int serie = 0;
+    Robo(int serie) { this.serie := serie },
+    proc falar() { write("Robo " ++ this.serie ++ ": Bip-bop") }
+  },
+  classe Plateia {
+    int ouvidos = 0;
+    Plateia() { skip },
+    proc ouvir(Falante f) {
+      this.ouvidos := this.ouvidos + 1;
+      f.falar()
+    }
+  };
+  {
+    Plateia pl := new Plateia(),
+    Pato p := new Pato("Donald"),
+    Robo r := new Robo(42);
+    pl.ouvir(p);
+    pl.ouvir(r)
+  }
+}

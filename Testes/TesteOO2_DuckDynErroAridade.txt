@@ -1,0 +1,18 @@
+// Duck typing dinamico: o metodo existe, mas com outro numero de
+// parametros. A aridade e conferida na execucao.
+// README, exemplo 2 (variacao).
+// Resultado: erro-execucao
+// > Donald: Quack!
+// Erro esperado: falar espera 0 argumentos, recebeu 1
+{
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  };
+  {
+    dyn d := new Pato("Donald");
+    d.falar();
+    d.falar(1)
+  }
+}

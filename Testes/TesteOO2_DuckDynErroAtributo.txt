@@ -1,0 +1,14 @@
+// Acesso a atributo sobre dyn nao e permitido (decisao de escopo): o duck
+// typing trata apenas de metodos.
+// Resultado: erro-tipo
+{
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") }
+  };
+  {
+    dyn d := new Pato("Donald");
+    write(d.nome)
+  }
+}

@@ -1,0 +1,20 @@
+// Protocolo: atraves de uma variavel Falante so os metodos do protocolo
+// sao visiveis. Pato tem nadar(), mas Falante nao.
+// README, exemplo 6.
+// Resultado: erro-tipo
+{
+  protocolo Falante {
+    proc falar()
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") },
+    proc nadar() { write(this.nome ++ " nadando") }
+  };
+  {
+    Falante f := new Pato("Donald");
+    f.falar();
+    f.nadar()
+  }
+}

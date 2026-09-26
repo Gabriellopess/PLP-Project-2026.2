@@ -1,0 +1,27 @@
+// Protocolo: Pedra nao tem falar(), entao nao satisfaz Falante. O programa
+// e recusado antes de executar qualquer comando.
+// README, exemplo 5.
+// Resultado: erro-tipo
+{
+  protocolo Falante {
+    proc falar()
+  },
+  classe Pedra {
+    int peso = 0;
+    Pedra(int peso) { this.peso := peso },
+    proc rolar() { write("rolando") }
+  },
+  classe Plateia {
+    int ouvidos = 0;
+    Plateia() { skip },
+    proc ouvir(Falante f) {
+      this.ouvidos := this.ouvidos + 1;
+      f.falar()
+    }
+  };
+  {
+    Plateia pl := new Plateia(),
+    Pedra pd := new Pedra(10);
+    pl.ouvir(pd)
+  }
+}
