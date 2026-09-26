@@ -1,9 +1,18 @@
 package loo2.plp.orientadaObjetos2.declaracao.protocolo;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import loo2.plp.expressions2.memory.VariavelNaoDeclaradaException;
+import loo2.plp.imperative1.util.Lista;
+import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseJaDeclaradaException;
+import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
 import loo2.plp.orientadaObjetos1.expressao.leftExpression.Id;
 import loo2.plp.orientadaObjetos2.declaracao.DecOO;
+import loo2.plp.orientadaObjetos2.excecao.ProtocoloJaDeclaradoException;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
+import loo2.plp.orientadaObjetos2.memoria.DefProtocolo;
 
 /**
  * Declaracao de um protocolo: um conjunto de assinaturas de metodos que
@@ -41,15 +50,40 @@ public class DecProtocolo implements DecOO {
 		return assinaturas;
 	}
 
-	// TODO etapa 3: registrar o protocolo no ambiente de execucao.
-	public AmbienteExecucaoOO2 elabora(AmbienteExecucaoOO2 ambiente) {
-		throw new UnsupportedOperationException(
-				"Protocolo " + nome + ": elaboracao de protocolos ainda nao implementada");
+	/**
+	 * Registra o protocolo no ambiente de execucao. Protocolos nao executam
+	 * nada, mas a verificacao dinamica de dyn (regra R7) precisa consulta-los.
+	 */
+	public AmbienteExecucaoOO2 elabora(AmbienteExecucaoOO2 ambiente) throws ClasseJaDeclaradaException {
+		ambiente.mapProtocolo(nome, new DefProtocolo(nome, assinaturas));
+		return ambiente;
 	}
 
-	// TODO etapa 3: validar as assinaturas e registrar o protocolo no ambiente de compilacao.
-	public boolean checaTipo(AmbienteCompilacaoOO2 ambiente) {
-		throw new UnsupportedOperationException(
-				"Protocolo " + nome + ": verificacao de protocolos ainda nao implementada");
+	/**
+	 * Um protocolo esta bem tipado se seu nome ainda nao foi usado por outra
+	 * classe ou protocolo, se nao repete nomes de metodo e se cada
+	 * assinatura esta bem tipada.
+	 *
+	 * O protocolo e registrado antes de verificar as assinaturas, para que
+	 * elas possam citar o proprio protocolo como tipo de parametro.
+	 */
+	public boolean checaTipo(AmbienteCompilacaoOO2 ambiente)
+			throws VariavelNaoDeclaradaException, ClasseNaoDeclaradaException {
+		try {
+			ambiente.mapProtocolo(nome, new DefProtocolo(nome, assinaturas));
+		} catch (ProtocoloJaDeclaradoException e) {
+			return false;
+		}
+
+		Set<String> nomesMetodos = new HashSet<String>();
+		Lista<Assinatura> lista = assinaturas;
+		while (lista != null && lista.getHead() != null) {
+			Assinatura assinatura = lista.getHead();
+			if (!nomesMetodos.add(assinatura.getNome().getIdName()) || !assinatura.checaTipo(ambiente)) {
+				return false;
+			}
+			lista = lista.getTail();
+		}
+		return true;
 	}
 }

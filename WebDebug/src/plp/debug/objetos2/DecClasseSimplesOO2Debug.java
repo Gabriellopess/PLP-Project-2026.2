@@ -54,6 +54,11 @@ public class DecClasseSimplesOO2Debug extends DecClasseSimplesOO2 {
 			ProcedimentoNaoDeclaradoException,
 			ProcedimentoJaDeclaradoException, ConstrutorNaoDeclaradoException {
 
+		// Classes e protocolos compartilham o espaco de nomes.
+		if (ambiente.ehProtocolo(nomeClasse)) {
+			return false;
+		}
+
 		// Verifica se a super classe já foi declarada
 		if (nomeSuperClasse != null) {
 			ambiente.mapSuperClasse(nomeClasse, nomeSuperClasse);

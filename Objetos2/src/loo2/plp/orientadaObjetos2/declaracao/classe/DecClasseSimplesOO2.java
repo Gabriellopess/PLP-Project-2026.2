@@ -77,6 +77,10 @@ public class DecClasseSimplesOO2 extends DecClasseSimples implements DecOO {
 			ClasseJaDeclaradaException, ClasseNaoDeclaradaException,
 			ProcedimentoNaoDeclaradoException,
 			ProcedimentoJaDeclaradoException, ConstrutorNaoDeclaradoException {
+		// Classes e protocolos compartilham o espaco de nomes.
+		if (ambiente.ehProtocolo(nomeClasse)) {
+			return false;
+		}
 		
 		// Verifica se a super classe j� foi declarada
 		if (nomeSuperClasse != null) {
