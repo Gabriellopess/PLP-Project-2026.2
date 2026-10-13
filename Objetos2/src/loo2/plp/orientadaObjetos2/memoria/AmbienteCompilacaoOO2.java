@@ -5,7 +5,7 @@ import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException
 import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
 import loo2.plp.orientadaObjetos2.util.SuperClasseMap;
 
-public interface AmbienteCompilacaoOO2 extends AmbienteCompilacaoOO1{
+public interface AmbienteCompilacaoOO2 extends AmbienteCompilacaoOO1, AmbienteProtocolosOO2{
 	
 	/**
 	 * Mapeia um identificador de classe com o identificador da super-classe.

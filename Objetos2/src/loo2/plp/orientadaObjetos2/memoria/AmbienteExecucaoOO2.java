@@ -1,13 +1,14 @@
 package loo2.plp.orientadaObjetos2.memoria;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import loo2.plp.expressions2.expression.Id;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
 import loo2.plp.orientadaObjetos2.util.SuperClasseMap;
 
-public interface AmbienteExecucaoOO2 extends AmbienteExecucaoOO1{
+public interface AmbienteExecucaoOO2 extends AmbienteExecucaoOO1, AmbienteProtocolosOO2{
 
 	/**
 	 * Mapei uma classe com a sua super classe
@@ -29,5 +30,12 @@ public interface AmbienteExecucaoOO2 extends AmbienteExecucaoOO1{
 	 * Retorna todos os mapeamentos de heran�a do ambiente de execucao
 	 * @return
 	 */
-	public ArrayList<SuperClasseMap> getMapSuperClasse();	
+	public ArrayList<SuperClasseMap> getMapSuperClasse();
+
+	/**
+	 * Retorna o mapeamento de protocolos do ambiente de execucao, para ser
+	 * compartilhado com os ambientes criados a partir deste.
+	 * @return
+	 */
+	public HashMap<String, DefProtocolo> getMapProtocolo();
 }
