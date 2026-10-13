@@ -3,6 +3,7 @@ package loo2.plp.orientadaObjetos1.util;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
 import loo2.plp.orientadaObjetos1.expressao.leftExpression.Id;
+import loo2.plp.orientadaObjetos2.memoria.AmbienteProtocolosOO2;
 
 /**
  * Classe que representa os possiveis tipos de uma expressao.
@@ -55,6 +56,11 @@ public class TipoClasse implements Tipo {
     public boolean eValido(AmbienteCompilacaoOO1 ambiente)
          throws ClasseNaoDeclaradaException {
         boolean resposta = false;
+        // Em OO2, o Id tambem pode nomear um protocolo (duck typing estatico).
+        if (ambiente instanceof AmbienteProtocolosOO2
+                && ((AmbienteProtocolosOO2) ambiente).ehProtocolo(tipoClasse)) {
+            return true;
+        }
         try{
              resposta =  (tipoClasse == NULL) || (ambiente.getDefClasse(tipoClasse) != null);
          }
