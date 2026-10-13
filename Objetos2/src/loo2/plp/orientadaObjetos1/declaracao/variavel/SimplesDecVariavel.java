@@ -10,7 +10,7 @@ import loo2.plp.orientadaObjetos1.expressao.leftExpression.Id;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
 import loo2.plp.orientadaObjetos1.util.Tipo;
-import loo2.plp.orientadaObjetos1.util.TipoClasse;
+import loo2.plp.orientadaObjetos2.util.CompatibilidadeTipos;
 
 /**
  * Classe que representa uma declara�ao de vari�vel simples.
@@ -83,13 +83,8 @@ public class SimplesDecVariavel implements DecVariavel{
                ClasseNaoDeclaradaException {
         boolean resposta = false;
         if ( expressao.checaTipo(ambiente) ) {
-            if( tipo instanceof TipoClasse) {
-                resposta = expressao.getTipo(ambiente).equals(TipoClasse.TIPO_NULL) ||
-                           expressao.getTipo(ambiente).equals(tipo);
-            }
-            else {
-                resposta = expressao.getTipo(ambiente).equals(tipo);
-            }
+            // null, heranca, protocolos e dyn sao tratados pela relacao de compatibilidade
+            resposta = CompatibilidadeTipos.ehCompativel(expressao.getTipo(ambiente), tipo, ambiente);
         }
         if(resposta) {
             ambiente.map(id, tipo);
