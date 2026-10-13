@@ -78,6 +78,7 @@ import plp.debug.objetos2.DecConstrutorDebug;
 import plp.debug.objetos2.DecProcedimentoSimplesDebug;
 import loo2.plp.orientadaObjetos2.Programa;
 import loo2.plp.orientadaObjetos2.declaracao.DecConstrutor;
+import loo2.plp.orientadaObjetos2.declaracao.DecOO;
 import loo2.plp.orientadaObjetos2.declaracao.ListaDeclaracaoOO;
 import loo2.plp.orientadaObjetos2.declaracao.classe.DecClasseSimplesOO2;
 import loo2.plp.orientadaObjetos2.memoria.ContextoCompilacaoOO2;
@@ -1118,7 +1119,7 @@ ListaDeclaracaoOO PListaDeclaracaoOO() :
     	retorno = PDecClasseComposta()
   	|decClasse = PDecClasseAtomica()
   	{
-    	retorno = new ListaDeclaracaoOO(decClasse);
+    	retorno = new ListaDeclaracaoOO((DecOO) decClasse);
   	}
   )
   {
@@ -1199,7 +1200,7 @@ ListaDeclaracaoOO PDecClasseComposta() :
 {
   d1 = PDecClasseAtomica() < COMMA > d2 = PListaDeclaracaoOO()
   {
-    return new ListaDeclaracaoOO(d1, d2);
+    return new ListaDeclaracaoOO((DecOO) d1, d2);
   }
 }
 
