@@ -20,13 +20,17 @@ import loo2.plp.orientadaObjetos1.expressao.leftExpression.Id;
 import loo2.plp.orientadaObjetos1.expressao.leftExpression.LeftExpression;
 import loo2.plp.orientadaObjetos1.expressao.valor.Valor;
 import loo2.plp.orientadaObjetos1.expressao.valor.ValorRef;
+import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
 import loo2.plp.orientadaObjetos1.memoria.ContextoExecucaoOO1;
 import loo2.plp.orientadaObjetos1.memoria.Objeto;
 import loo2.plp.orientadaObjetos1.memoria.colecao.ListaValor;
+import loo2.plp.orientadaObjetos1.util.TipoClasse;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.ContextoExecucaoOO2;
+import loo2.plp.orientadaObjetos2.memoria.AmbienteProtocolosOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
+import loo2.plp.orientadaObjetos2.util.CompatibilidadeTipos;
 
 public class NewOO2 extends New {
 
@@ -89,6 +93,22 @@ public class NewOO2 extends New {
 		new ChamadaProcedimento(metodo, parametrosReais, valoresDosParametros).executar(aux);
 
 		return ambiente;
+	}
+
+	/**
+	 * O comando x := new C(...) esta bem tipado se C for uma classe declarada
+	 * (um protocolo nao pode ser instanciado) e C for compativel com o tipo
+	 * de x (igualdade, heranca, protocolos e dyn).
+	 */
+	public boolean checaTipo(AmbienteCompilacaoOO1 ambiente) throws VariavelNaoDeclaradaException,
+			ClasseJaDeclaradaException, ClasseNaoDeclaradaException {
+		TipoClasse tpClasse = new TipoClasse(getClasse());
+		boolean ehProtocolo = ambiente instanceof AmbienteProtocolosOO2
+				&& ((AmbienteProtocolosOO2) ambiente).ehProtocolo(getClasse());
+		return getAv().checaTipo(ambiente)
+				&& !ehProtocolo
+				&& tpClasse.eValido(ambiente)
+				&& CompatibilidadeTipos.ehCompativel(tpClasse, getAv().getTipo(ambiente), ambiente);
 	}
 
 }
