@@ -3,6 +3,7 @@ package loo2.plp.orientadaObjetos2.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import loo2.plp.imperative1.util.Lista;
 import loo2.plp.orientadaObjetos1.comando.Procedimento;
 import loo2.plp.orientadaObjetos1.declaracao.procedimento.ListaDeclaracaoParametro;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
@@ -16,10 +17,12 @@ import loo2.plp.orientadaObjetos1.expressao.valor.ValorRef;
 import loo2.plp.orientadaObjetos1.expressao.valor.ValorString;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
+import loo2.plp.orientadaObjetos1.memoria.colecao.ListaValor;
 import loo2.plp.orientadaObjetos1.util.Tipo;
 import loo2.plp.orientadaObjetos1.util.TipoClasse;
 import loo2.plp.orientadaObjetos1.util.TipoPrimitivo;
 import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
+import loo2.plp.orientadaObjetos2.excecao.ErroDuckTypingException;
 import loo2.plp.orientadaObjetos2.excecao.ProtocoloNaoDeclaradoException;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteProtocolosOO2;
@@ -123,6 +126,34 @@ public class CompatibilidadeTipos {
 			return satisfaz(t.getTipo(), u.getTipo(), defs);     // R4
 		}
 		return ehSubclasse(t.getTipo(), u, defs);                // R3
+	}
+
+	/**
+	 * Confere, na execucao, os argumentos de uma chamada de metodo ou de
+	 * construtor: a quantidade e, para cada um, tipoDoValor(vi) &lt;= Ti.
+	 * Para receptores de classe ou protocolo isso ja foi garantido na
+	 * compilacao; quem pode falhar e o dyn (no receptor ou num argumento).
+	 *
+	 * @throws ErroDuckTypingException se alguma checagem falhar
+	 */
+	public static void confereArgumentos(Id metodo, ListaDeclaracaoParametro formais, ListaValor valores,
+			AmbienteExecucaoOO1 ambiente) throws ObjetoNaoDeclaradoException {
+		List<Tipo> tiposFormais = tipos(formais);
+		int recebidos = valores.length();
+		if (tiposFormais.size() != recebidos) {
+			throw new ErroDuckTypingException(metodo + " espera " + tiposFormais.size()
+					+ " argumentos, recebeu " + recebidos);
+		}
+		Lista<Valor> atual = valores;
+		for (int i = 0; i < tiposFormais.size(); i++) {
+			Valor valor = atual.getHead();
+			Tipo esperado = tiposFormais.get(i);
+			if (!valorCompativel(valor, esperado, ambiente)) {
+				throw new ErroDuckTypingException("argumento " + (i + 1) + " de " + metodo + ": "
+						+ tipoDoValor(valor, ambiente) + " n\u00e3o satisfaz " + esperado);
+			}
+			atual = atual.getTail();
+		}
 	}
 
 	/**

@@ -34,6 +34,7 @@ import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.ContextoExecucaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
+import loo2.plp.orientadaObjetos2.util.CompatibilidadeTipos;
 import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 public class ChamadaMetodoOO2 extends ChamadaMetodo {
@@ -97,6 +98,7 @@ public class ChamadaMetodoOO2 extends ChamadaMetodo {
 	                                                           //  um mapeamento
 	
 	    ListaValor valoresDosParametros = parametrosReais.avaliar(ambiente);
+	    CompatibilidadeTipos.confereArgumentos(nomeMetodo, metodo.getParametrosFormais(), valoresDosParametros, ambiente);
 	    new ChamadaProcedimento(metodo, parametrosReais, valoresDosParametros).executar(aux);
 	    return ambiente;
     }
