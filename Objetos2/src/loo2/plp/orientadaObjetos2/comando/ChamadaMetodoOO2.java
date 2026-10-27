@@ -24,7 +24,13 @@ import loo2.plp.orientadaObjetos1.memoria.DefClasse;
 import loo2.plp.orientadaObjetos1.memoria.Objeto;
 import loo2.plp.orientadaObjetos1.memoria.colecao.ListaValor;
 import loo2.plp.orientadaObjetos1.util.Tipo;
+import loo2.plp.imperative1.util.Lista;
+import loo2.plp.orientadaObjetos1.comando.Skip;
+import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
+import loo2.plp.orientadaObjetos2.excecao.ProtocoloNaoDeclaradoException;
+import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
+import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 public class ChamadaMetodoOO2 extends ChamadaMetodo {
 
@@ -85,6 +91,14 @@ public class ChamadaMetodoOO2 extends ChamadaMetodo {
         //Se n�o for v�lido, a exce��o ProcedimentoNaoDeclaradoException ser�
         //lan�ada e checaTipo retornar� false.
         Tipo tipoClasse = expressao.getTipo(ambiente);
+        if (tipoClasse instanceof TipoDinamico) {
+            // dyn: o metodo so e procurado na execucao, pela classe real
+            return expressao.checaTipo(ambiente) && checaTipoArgumentos(ambiente);
+        }
+        if (ambiente instanceof AmbienteCompilacaoOO2
+                && ((AmbienteCompilacaoOO2) ambiente).ehProtocolo(tipoClasse.getTipo())) {
+            return checaTipoProtocolo((AmbienteCompilacaoOO2) ambiente, tipoClasse.getTipo());
+        }
         DefClasse defClasse = ambiente.getDefClasse(tipoClasse.getTipo());
         try {
             Procedimento metodo = this.getProcedimentoHierarquia(ambiente, (DefClasseOO2) defClasse, nomeMetodo);
@@ -96,5 +110,45 @@ public class ChamadaMetodoOO2 extends ChamadaMetodo {
             resposta = false;
         }
         return resposta;
+    }
+
+    /**
+     * Receptor do tipo protocolo: o metodo e procurado nas assinaturas do
+     * protocolo, e nao na classe real do objeto. Os argumentos sao conferidos
+     * com a relacao de compatibilidade, tratando a assinatura como um
+     * procedimento sem corpo.
+     */
+    private boolean checaTipoProtocolo(AmbienteCompilacaoOO2 ambiente, Id idProtocolo)
+    		throws VariavelNaoDeclaradaException, VariavelJaDeclaradaException, ClasseNaoDeclaradaException {
+        Assinatura assinatura;
+        try {
+            assinatura = ambiente.getDefProtocolo(idProtocolo).getAssinatura(nomeMetodo);
+        } catch (ProtocoloNaoDeclaradoException e) {
+            return false;
+        }
+        if (assinatura == null || !expressao.checaTipo(ambiente) || !checaTipoArgumentos(ambiente)) {
+            return false;
+        }
+        Procedimento semCorpo = new Procedimento(assinatura.getParametros(), new Skip());
+        try {
+            return new ChamadaProcedimento(semCorpo, parametrosReais).checaTipo(ambiente);
+        } catch (ProcedimentoNaoDeclaradoException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Confere se cada argumento esta bem tipado isoladamente.
+     */
+    private boolean checaTipoArgumentos(AmbienteCompilacaoOO1 ambiente)
+    		throws VariavelNaoDeclaradaException, ClasseNaoDeclaradaException {
+        Lista<Expressao> atual = parametrosReais;
+        while (atual != null && atual.getHead() != null) {
+            if (!atual.getHead().checaTipo(ambiente)) {
+                return false;
+            }
+            atual = atual.getTail();
+        }
+        return true;
     }
 }
