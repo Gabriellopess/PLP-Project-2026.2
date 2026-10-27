@@ -10,7 +10,10 @@ import loo2.plp.orientadaObjetos1.expressao.leftExpression.Id;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
 import loo2.plp.orientadaObjetos1.util.Tipo;
+import loo2.plp.orientadaObjetos1.expressao.valor.Valor;
+import loo2.plp.orientadaObjetos2.excecao.ErroDuckTypingException;
 import loo2.plp.orientadaObjetos2.util.CompatibilidadeTipos;
+import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 /**
  * Classe que representa uma declara�ao de vari�vel simples.
@@ -28,6 +31,11 @@ public class SimplesDecVariavel implements DecVariavel{
      * Express�o cujo valor ser� atribu�do � vari�vel.
      */
     private Expressao expressao;
+    /**
+     * Marcado no checaTipo quando a expressao e dyn e o tipo declarado nao:
+     * a regra R7 precisa ser conferida no elabora, com o valor real.
+     */
+    private boolean conferirValor = false;
     /**
      * Construtor.
      * @param tipo Tipo da vari�vel declarada.
@@ -66,7 +74,12 @@ public class SimplesDecVariavel implements DecVariavel{
     public AmbienteExecucaoOO1 elabora(AmbienteExecucaoOO1 ambiente)
         throws VariavelJaDeclaradaException, VariavelNaoDeclaradaException,
                ObjetoNaoDeclaradoException,ObjetoJaDeclaradoException, ClasseNaoDeclaradaException  {
-        ambiente.map(id , expressao.avaliar(ambiente));
+        Valor valor = expressao.avaliar(ambiente);
+        if (conferirValor && !CompatibilidadeTipos.valorCompativel(valor, tipo, ambiente)) {
+            throw new ErroDuckTypingException("valor de " + id + ": "
+                    + CompatibilidadeTipos.tipoDoValor(valor, ambiente) + " n\u00e3o satisfaz " + tipo);
+        }
+        ambiente.map(id , valor);
         return ambiente;
     }
 
@@ -84,7 +97,9 @@ public class SimplesDecVariavel implements DecVariavel{
         boolean resposta = false;
         if ( expressao.checaTipo(ambiente) ) {
             // null, heranca, protocolos e dyn sao tratados pela relacao de compatibilidade
-            resposta = CompatibilidadeTipos.ehCompativel(expressao.getTipo(ambiente), tipo, ambiente);
+            Tipo tipoExpressao = expressao.getTipo(ambiente);
+            resposta = CompatibilidadeTipos.ehCompativel(tipoExpressao, tipo, ambiente);
+            conferirValor = tipoExpressao instanceof TipoDinamico && !(tipo instanceof TipoDinamico);
         }
         if(resposta) {
             ambiente.map(id, tipo);

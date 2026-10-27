@@ -110,11 +110,12 @@ public class NewOO2 implements Comando {
 
 		// Os argumentos sao avaliados antes de x mudar de valor
 		ListaValor valoresDosParametros = parametrosReais.avaliar(ambiente);
+		Procedimento construtor = defClasse.getConstrutor().getProcedimento();
+		CompatibilidadeTipos.confereArgumentos(classe, construtor.getParametrosFormais(), valoresDosParametros, ambiente);
 		ambiente = new Atribuicao(av, vr).executar(ambiente);
 
-		// Executa o construtor com this apontando para o novo objeto. Dentro
-		// de um metodo, o ambiente e de OO1.
-		Procedimento construtor = defClasse.getConstrutor().getProcedimento();
+		// Executa o construtor com this apontando para o novo objeto. Fora de
+		// OO2 (ambiente de OO1), usa um contexto de OO1.
 		AmbienteExecucaoOO1 aux = (ambiente instanceof AmbienteExecucaoOO2)
 				? new ContextoExecucaoOO2((AmbienteExecucaoOO2) ambiente)
 				: new ContextoExecucaoOO1(ambiente);

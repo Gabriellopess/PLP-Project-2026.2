@@ -19,6 +19,7 @@ import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
 import loo2.plp.orientadaObjetos1.util.Tipo;
 import loo2.plp.orientadaObjetos1.util.TipoClasse;
 import loo2.plp.orientadaObjetos2.comando.NewOO2;
+import loo2.plp.orientadaObjetos2.excecao.ErroDuckTypingException;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteProtocolosOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
@@ -46,6 +47,8 @@ public class DecVariavelObjetoOO2 extends DecVariavelObjeto {
 		try {
 			aux = new NewOO2(getObjeto(), getClasse(), parametrosReais)
 					.executar(aux);
+		} catch (ErroDuckTypingException e) {
+			throw e;    // erro de execucao do duck typing: interrompe o programa
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
