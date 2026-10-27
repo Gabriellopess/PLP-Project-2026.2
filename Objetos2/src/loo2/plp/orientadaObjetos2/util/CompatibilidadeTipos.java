@@ -22,6 +22,7 @@ import loo2.plp.orientadaObjetos1.util.TipoPrimitivo;
 import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
 import loo2.plp.orientadaObjetos2.excecao.ProtocoloNaoDeclaradoException;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
+import loo2.plp.orientadaObjetos2.memoria.AmbienteProtocolosOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefProtocolo;
 
@@ -106,18 +107,7 @@ public class CompatibilidadeTipos {
 	 * e exatamente os mesmos tipos de parametros, na mesma ordem.
 	 */
 	public static boolean satisfaz(Id classe, Id protocolo, AmbienteCompilacaoOO2 ambiente) {
-		DefProtocolo defProtocolo = defProtocolo(protocolo, ambiente);
-		if (defProtocolo == null) {
-			return false;
-		}
-		for (Assinatura assinatura : defProtocolo.getAssinaturas()) {
-			Procedimento metodo = buscaMetodo(classe, assinatura.getNome(), ambiente);
-			if (metodo == null
-					|| !mesmosTipos(metodo.getParametrosFormais(), assinatura.getParametros())) {
-				return false;
-			}
-		}
-		return true;
+		return satisfaz(classe, protocolo, definicoes(ambiente));
 	}
 
 	/**
@@ -125,8 +115,9 @@ public class CompatibilidadeTipos {
 	 * mesmos tipos de parametros.
 	 */
 	public static boolean contem(Id p, Id q, AmbienteCompilacaoOO2 ambiente) {
-		DefProtocolo defP = defProtocolo(p, ambiente);
-		DefProtocolo defQ = defProtocolo(q, ambiente);
+		Definicoes defs = definicoes(ambiente);
+		DefProtocolo defP = defs.defProtocolo(p);
+		DefProtocolo defQ = defs.defProtocolo(q);
 		if (defP == null || defQ == null) {
 			return false;
 		}
@@ -140,24 +131,35 @@ public class CompatibilidadeTipos {
 		return true;
 	}
 
+	private static boolean satisfaz(Id classe, Id protocolo, Definicoes defs) {
+		DefProtocolo defProtocolo = defs.defProtocolo(protocolo);
+		if (defProtocolo == null) {
+			return false;
+		}
+		for (Assinatura assinatura : defProtocolo.getAssinaturas()) {
+			Procedimento metodo = buscaMetodo(classe, assinatura.getNome(), defs);
+			if (metodo == null
+					|| !mesmosTipos(metodo.getParametrosFormais(), assinatura.getParametros())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Procura o metodo na classe e, se nao achar, nas superclasses (a mesma
 	 * busca que ChamadaMetodoOO2 faz). Retorna null se nao encontrar ou se
 	 * a classe nao estiver declarada.
 	 */
-	private static Procedimento buscaMetodo(Id classe, Id nomeMetodo, AmbienteCompilacaoOO2 ambiente) {
-		try {
-			DefClasseOO2 defClasse = (DefClasseOO2) ambiente.getDefClasse(classe);
-			while (defClasse != null) {
-				try {
-					return defClasse.getMetodo(nomeMetodo);
-				} catch (ProcedimentoNaoDeclaradoException e) {
-					Id superClasse = defClasse.getNomeSuperClasse();
-					defClasse = (superClasse == null) ? null : (DefClasseOO2) ambiente.getDefClasse(superClasse);
-				}
+	private static Procedimento buscaMetodo(Id classe, Id nomeMetodo, Definicoes defs) {
+		DefClasseOO2 defClasse = defs.defClasse(classe);
+		while (defClasse != null) {
+			try {
+				return defClasse.getMetodo(nomeMetodo);
+			} catch (ProcedimentoNaoDeclaradoException e) {
+				Id superClasse = defClasse.getNomeSuperClasse();
+				defClasse = (superClasse == null) ? null : defs.defClasse(superClasse);
 			}
-		} catch (ClasseNaoDeclaradaException e) {
-			return null;
 		}
 		return null;
 	}
@@ -182,11 +184,59 @@ public class CompatibilidadeTipos {
 		return resposta;
 	}
 
-	private static DefProtocolo defProtocolo(Id protocolo, AmbienteCompilacaoOO2 ambiente) {
-		try {
-			return ambiente.getDefProtocolo(protocolo);
-		} catch (ProtocoloNaoDeclaradoException e) {
-			return null;
-		}
+	/**
+	 * Consulta de classes e protocolos. Ha uma implementacao para o ambiente
+	 * de compilacao e outra para o de execucao, para que satisfaz e
+	 * buscaMetodo sirvam nas duas fases sem duplicar codigo.
+	 */
+	private interface Definicoes {
+		/** Definicao da classe, ou null se nao estiver declarada. */
+		DefClasseOO2 defClasse(Id classe);
+
+		/** Definicao do protocolo, ou null se nao estiver declarado. */
+		DefProtocolo defProtocolo(Id protocolo);
+	}
+
+	private static Definicoes definicoes(final AmbienteCompilacaoOO2 ambiente) {
+		return new Definicoes() {
+			public DefClasseOO2 defClasse(Id classe) {
+				try {
+					return (DefClasseOO2) ambiente.getDefClasse(classe);
+				} catch (ClasseNaoDeclaradaException e) {
+					return null;
+				}
+			}
+
+			public DefProtocolo defProtocolo(Id protocolo) {
+				try {
+					return ambiente.getDefProtocolo(protocolo);
+				} catch (ProtocoloNaoDeclaradoException e) {
+					return null;
+				}
+			}
+		};
+	}
+
+	private static Definicoes definicoes(final AmbienteExecucaoOO1 ambiente) {
+		return new Definicoes() {
+			public DefClasseOO2 defClasse(Id classe) {
+				try {
+					return (DefClasseOO2) ambiente.getDefClasse(classe);
+				} catch (ClasseNaoDeclaradaException e) {
+					return null;
+				}
+			}
+
+			public DefProtocolo defProtocolo(Id protocolo) {
+				if (!(ambiente instanceof AmbienteProtocolosOO2)) {
+					return null;
+				}
+				try {
+					return ((AmbienteProtocolosOO2) ambiente).getDefProtocolo(protocolo);
+				} catch (ProtocoloNaoDeclaradoException e) {
+					return null;
+				}
+			}
+		};
 	}
 }
