@@ -9,6 +9,7 @@ import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
 import loo2.plp.orientadaObjetos1.util.Tipo;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
+import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 public class AcessoAtributoIdOO2 extends AcessoAtributoId{
 
@@ -38,6 +39,13 @@ public class AcessoAtributoIdOO2 extends AcessoAtributoId{
         if(av.checaTipo(ambiente)) {
             try{
                 Tipo tipo = av.getTipo(ambiente);
+                // Decisao de escopo: o duck typing so cobre metodos. Atributos
+                // nao sao acessiveis por variaveis dyn ou de tipo protocolo.
+                if (tipo instanceof TipoDinamico
+                        || (ambiente instanceof AmbienteCompilacaoOO2
+                            && ((AmbienteCompilacaoOO2) ambiente).ehProtocolo(tipo.getTipo()))) {
+                    return false;
+                }
                 DefClasseOO2 defClasse = (DefClasseOO2) ambiente.getDefClasse(tipo.getTipo());
                 
                 if (defClasse.getNomeSuperClasse() != null) {

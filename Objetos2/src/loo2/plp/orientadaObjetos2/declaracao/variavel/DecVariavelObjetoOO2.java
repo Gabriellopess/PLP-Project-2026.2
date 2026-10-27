@@ -19,10 +19,11 @@ import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
 import loo2.plp.orientadaObjetos1.util.Tipo;
 import loo2.plp.orientadaObjetos1.util.TipoClasse;
 import loo2.plp.orientadaObjetos2.comando.NewOO2;
-import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
+import loo2.plp.orientadaObjetos2.memoria.AmbienteProtocolosOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
-import loo2.plp.orientadaObjetos2.util.HierarquiaUtils;
+import loo2.plp.orientadaObjetos2.util.CompatibilidadeTipos;
+import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 public class DecVariavelObjetoOO2 extends DecVariavelObjeto {
 
@@ -52,19 +53,31 @@ public class DecVariavelObjetoOO2 extends DecVariavelObjeto {
 		return aux;
 	}
 
+	/**
+	 * T x := new C(...) esta bem tipada se C for uma classe (um protocolo nao
+	 * pode ser instanciado), C for compativel com T e os argumentos servirem
+	 * ao construtor de C.
+	 *
+	 * Se T for dyn ou um protocolo, a variavel fica com o tipo declarado T;
+	 * se T for uma classe, mantem-se o comportamento original de OO2 (a
+	 * variavel fica com o tipo da classe instanciada).
+	 */
 	public boolean checaTipo(AmbienteCompilacaoOO1 ambiente) throws VariavelJaDeclaradaException, VariavelNaoDeclaradaException, ClasseJaDeclaradaException, ClasseNaoDeclaradaException {
+
+		if (ehProtocolo(ambiente, this.getClasse())) {
+			return false;
+		}
 
 		boolean booleanSuper = false;
 		Tipo tpClasse = new TipoClasse(this.getClasse());
 		if (tpClasse.eValido(ambiente) && this.getTipo().eValido(ambiente)) {
-			booleanSuper = tpClasse.equals(this.getTipo()) ||
-							HierarquiaUtils.ehSubTipo(tpClasse, this.getTipo(),
-														(AmbienteCompilacaoOO2) ambiente);
-			ambiente.map(this.getObjeto(), tpClasse);
+			booleanSuper = CompatibilidadeTipos.ehCompativel(tpClasse, this.getTipo(), ambiente);
+			boolean tipoDuck = this.getTipo() instanceof TipoDinamico
+					|| ehProtocolo(ambiente, this.getTipo().getTipo());
+			ambiente.map(this.getObjeto(), tipoDuck ? this.getTipo() : tpClasse);
 		}
 		
-		Tipo tipoClasse = getObjeto().getTipo(ambiente);
-		DefClasseOO2 defClasse = (DefClasseOO2) ambiente.getDefClasse(tipoClasse.getTipo());
+		DefClasseOO2 defClasse = (DefClasseOO2) ambiente.getDefClasse(this.getClasse());
 		
 		Procedimento metodo = defClasse.getConstrutor().getProcedimento();
 		
@@ -81,5 +94,10 @@ public class DecVariavelObjetoOO2 extends DecVariavelObjeto {
 		}
 		
 		return booleanSuper && resposta;
+	}
+
+	private static boolean ehProtocolo(AmbienteCompilacaoOO1 ambiente, Id id) {
+		return ambiente instanceof AmbienteProtocolosOO2
+				&& ((AmbienteProtocolosOO2) ambiente).ehProtocolo(id);
 	}
 }

@@ -6,9 +6,7 @@ import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException
 import loo2.plp.orientadaObjetos1.expressao.Expressao;
 import loo2.plp.orientadaObjetos1.expressao.leftExpression.LeftExpression;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
-import loo2.plp.orientadaObjetos1.util.Tipo;
-import loo2.plp.orientadaObjetos1.util.TipoClasse;
-import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
+import loo2.plp.orientadaObjetos2.util.CompatibilidadeTipos;
 
 public class AtribuicaoOO2 extends Atribuicao {
 
@@ -16,36 +14,16 @@ public class AtribuicaoOO2 extends Atribuicao {
 		super(av, expressao);
 	}
 	
+	/**
+	 * A atribuicao x := e esta bem tipada se o tipo de e for compativel com o
+	 * tipo de x (igualdade, null, heranca, protocolos e dyn). O lado esquerdo
+	 * e verificado antes de se ler o seu tipo, para que um atributo
+	 * inexistente, ou acessado por dyn ou protocolo, seja erro de tipo.
+	 */
     public boolean checaTipo(AmbienteCompilacaoOO1 ambiente) throws VariavelNaoDeclaradaException, ClasseNaoDeclaradaException {
-    	boolean retorno = super.checaTipo(ambiente);
-    	
-    	if (!retorno) {
-    		Tipo tipoLeftExpression = av.getTipo(ambiente);
-    		Tipo tipoExpressao = expressao.getTipo(ambiente);
-  
-    		if ((tipoLeftExpression instanceof TipoClasse) && (tipoExpressao instanceof TipoClasse)) {
-    			DefClasseOO2 defClasseLeft = (DefClasseOO2) ambiente.getDefClasse(tipoLeftExpression.getTipo());
-    			DefClasseOO2 defClasseRight = (DefClasseOO2) ambiente.getDefClasse(tipoExpressao.getTipo());
-    			retorno = this.defClasseRightExtendsDefClasseLeft(ambiente, defClasseLeft, defClasseRight);
-    		}
-    	}
-    	
-    	return retorno;
+    	return av.checaTipo(ambiente)
+    			&& expressao.checaTipo(ambiente)
+    			&& CompatibilidadeTipos.ehCompativel(expressao.getTipo(ambiente), av.getTipo(ambiente), ambiente);
     }
-
-	private boolean defClasseRightExtendsDefClasseLeft(AmbienteCompilacaoOO1 ambiente, DefClasseOO2 defClasseLeft, DefClasseOO2 defClasseRight) throws ClasseNaoDeclaradaException {
-		boolean retorno = false;
-		
-		if (defClasseRight.getNomeSuperClasse() != null) {
-			DefClasseOO2 defClasseMae = (DefClasseOO2) ambiente.getDefClasse(defClasseRight.getNomeSuperClasse());
-			
-			if (defClasseMae.getIdClasse().getIdName().equals(defClasseLeft.getIdClasse().getIdName())) {
-				retorno = true;
-			} else {
-				retorno = this.defClasseRightExtendsDefClasseLeft(ambiente, defClasseLeft, defClasseMae);
-			}
-		}
-		return retorno;
-	}
 
 }

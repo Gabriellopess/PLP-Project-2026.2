@@ -9,7 +9,10 @@ import loo2.plp.orientadaObjetos1.excecao.declaracao.ProcedimentoJaDeclaradoExce
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ProcedimentoNaoDeclaradoException;
 import loo2.plp.orientadaObjetos1.memoria.DefClasse;
 import loo2.plp.orientadaObjetos1.util.Tipo;
+import loo2.plp.orientadaObjetos2.excecao.ProtocoloJaDeclaradoException;
+import loo2.plp.orientadaObjetos2.excecao.ProtocoloNaoDeclaradoException;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
+import loo2.plp.orientadaObjetos2.memoria.DefProtocolo;
 import loo2.plp.orientadaObjetos2.util.SuperClasseMap;
 import plp.debug.core.InfoEscopo;
 import plp.debug.core.ScopeAware;
@@ -99,5 +102,20 @@ public class AmbienteCompilacaoOO2Debug implements AmbienteCompilacaoOO2, ScopeA
 	@Override
 	public SuperClasseMap getSuperClasse(Id classe) throws ClasseNaoDeclaradaException {
 		return target.getSuperClasse(classe);
+	}
+
+	@Override
+	public void mapProtocolo(Id idArg, DefProtocolo defProtocolo) throws ProtocoloJaDeclaradoException {
+		target.mapProtocolo(idArg, defProtocolo);
+	}
+
+	@Override
+	public DefProtocolo getDefProtocolo(Id idArg) throws ProtocoloNaoDeclaradoException {
+		return target.getDefProtocolo(idArg);
+	}
+
+	@Override
+	public boolean ehProtocolo(Id idArg) {
+		return target.ehProtocolo(idArg);
 	}
 }
