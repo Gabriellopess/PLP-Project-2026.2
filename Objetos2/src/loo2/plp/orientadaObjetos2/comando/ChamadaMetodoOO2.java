@@ -29,6 +29,8 @@ import loo2.plp.orientadaObjetos1.comando.Skip;
 import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
 import loo2.plp.orientadaObjetos2.excecao.ProtocoloNaoDeclaradoException;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
+import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
+import loo2.plp.orientadaObjetos2.memoria.ContextoExecucaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
 import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
@@ -73,7 +75,11 @@ public class ChamadaMetodoOO2 extends ChamadaMetodo {
 	    Procedimento metodo = this.getProcedimentoHierarquia(ambiente, (DefClasseOO2) defClasse, nomeMetodo); // recupera o procedimento
 	    // cria um novo ambiente para a execucao, pois
 	    // n�o deve levar em conta as vari�veis definidas na main
-	    AmbienteExecucaoOO1 aux = new ContextoExecucaoOO1(ambiente);
+	    // Em OO2, o corpo roda num contexto de OO2, que carrega os protocolos
+	    // (necessarios para conferir R7 la dentro) e aceita declaracoes de objeto.
+	    AmbienteExecucaoOO1 aux = (ambiente instanceof AmbienteExecucaoOO2)
+	            ? new ContextoExecucaoOO2((AmbienteExecucaoOO2) ambiente)
+	            : new ContextoExecucaoOO1(ambiente);
 	                                                           // � change pois no construtor do ambiente
 	    aux.changeValor(new Id("this"),vr);                    // invocado na linha anterior ja � feito
 	                                                           //  um mapeamento
