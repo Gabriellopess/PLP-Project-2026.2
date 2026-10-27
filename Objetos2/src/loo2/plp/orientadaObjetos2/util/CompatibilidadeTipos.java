@@ -7,8 +7,15 @@ import loo2.plp.orientadaObjetos1.comando.Procedimento;
 import loo2.plp.orientadaObjetos1.declaracao.procedimento.ListaDeclaracaoParametro;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ClasseNaoDeclaradaException;
 import loo2.plp.orientadaObjetos1.excecao.declaracao.ProcedimentoNaoDeclaradoException;
+import loo2.plp.orientadaObjetos1.excecao.declaracao.ObjetoNaoDeclaradoException;
 import loo2.plp.orientadaObjetos1.expressao.leftExpression.Id;
+import loo2.plp.orientadaObjetos1.expressao.valor.Valor;
+import loo2.plp.orientadaObjetos1.expressao.valor.ValorBooleano;
+import loo2.plp.orientadaObjetos1.expressao.valor.ValorInteiro;
+import loo2.plp.orientadaObjetos1.expressao.valor.ValorRef;
+import loo2.plp.orientadaObjetos1.expressao.valor.ValorString;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
+import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
 import loo2.plp.orientadaObjetos1.util.Tipo;
 import loo2.plp.orientadaObjetos1.util.TipoClasse;
 import loo2.plp.orientadaObjetos1.util.TipoPrimitivo;
@@ -70,6 +77,27 @@ public class CompatibilidadeTipos {
 			return contem(t.getTipo(), u.getTipo(), amb);        // R5
 		}
 		return false;  // protocolo -> classe: nao ha como garantir estaticamente
+	}
+
+	/**
+	 * Tipo de um valor em tempo de execucao: o tipo primitivo, null, ou a
+	 * classe real do objeto referenciado. Nunca devolve dyn nem protocolo.
+	 */
+	public static Tipo tipoDoValor(Valor valor, AmbienteExecucaoOO1 ambiente)
+			throws ObjetoNaoDeclaradoException {
+		if (valor instanceof ValorInteiro) {
+			return TipoPrimitivo.TIPO_INTEIRO;
+		}
+		if (valor instanceof ValorBooleano) {
+			return TipoPrimitivo.TIPO_BOOLEANO;
+		}
+		if (valor instanceof ValorString) {
+			return TipoPrimitivo.TIPO_STRING;
+		}
+		if (valor instanceof ValorRef) {
+			return new TipoClasse(ambiente.getObjeto((ValorRef) valor).getClasse());
+		}
+		return TipoClasse.TIPO_NULL;
 	}
 
 	/**
