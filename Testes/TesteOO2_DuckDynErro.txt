@@ -1,0 +1,24 @@
+// Exemplo 2 do README: com dyn, o erro so aparece na execucao.
+// O programa passa no checaTipo; a primeira chamada executa e a segunda
+// falha, porque Robo nao tem nadar.
+// Saida esperada:
+//   Robo 7: Bip-bop
+//   ErroDuckTypingException: classe Robo não possui método nadar
+{
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") },
+    proc nadar() { write(this.nome ++ " nadando") }
+  },
+  classe Robo {
+    int serie = 0;
+    Robo(int serie) { this.serie := serie },
+    proc falar() { write("Robo " ++ this.serie ++ ": Bip-bop") }
+  };
+  {
+    dyn d := new Robo(7);
+    d.falar();
+    d.nadar()
+  }
+}

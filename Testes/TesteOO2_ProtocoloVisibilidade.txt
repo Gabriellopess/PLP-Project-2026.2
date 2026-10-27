@@ -1,0 +1,20 @@
+// Exemplo 6 do README: so os metodos do protocolo sao visiveis.
+// Pato tem nadar(), mas f foi declarada como Falante, que nao tem nadar.
+// Saida esperada:
+//   Erro de tipo
+{
+  protocolo Falante {
+    proc falar()
+  },
+  classe Pato {
+    string nome = "";
+    Pato(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": Quack!") },
+    proc nadar() { write(this.nome ++ " nadando") }
+  };
+  {
+    Falante f := new Pato("Donald");
+    f.falar();
+    f.nadar()
+  }
+}
