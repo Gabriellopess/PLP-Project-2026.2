@@ -102,6 +102,48 @@ public class CompatibilidadeTipos {
 	}
 
 	/**
+	 * A relacao de compatibilidade na execucao: tipoDoValor(valor) &lt;= u.
+	 * Como o tipo do valor e sempre primitivo, null ou uma classe concreta,
+	 * bastam R1, R2, R3, R4 e R6. E aqui que a regra R7 e conferida.
+	 */
+	public static boolean valorCompativel(Valor valor, Tipo u, AmbienteExecucaoOO1 ambiente)
+			throws ObjetoNaoDeclaradoException {
+		Tipo t = tipoDoValor(valor, ambiente);
+		if (t.equals(u)) {
+			return true;                                         // R1
+		}
+		if (t instanceof TipoPrimitivo || u instanceof TipoPrimitivo) {
+			return false;
+		}
+		if (u instanceof TipoDinamico || t.equals(TipoClasse.TIPO_NULL)) {
+			return true;                                         // R2 e R6
+		}
+		Definicoes defs = definicoes(ambiente);
+		if (defs.defProtocolo(u.getTipo()) != null) {
+			return satisfaz(t.getTipo(), u.getTipo(), defs);     // R4
+		}
+		return ehSubclasse(t.getTipo(), u, defs);                // R3
+	}
+
+	/**
+	 * Indica se a classe, ou uma de suas superclasses, e o tipo u.
+	 */
+	private static boolean ehSubclasse(Id classe, Tipo u, Definicoes defs) {
+		DefClasseOO2 defClasse = defs.defClasse(classe);
+		while (defClasse != null) {
+			Id superClasse = defClasse.getNomeSuperClasse();
+			if (superClasse == null) {
+				return false;
+			}
+			if (new TipoClasse(superClasse).equals(u)) {
+				return true;
+			}
+			defClasse = defs.defClasse(superClasse);
+		}
+		return false;
+	}
+
+	/**
 	 * Indica se a classe satisfaz o protocolo: para cada assinatura do
 	 * protocolo, a classe (ou uma superclasse) tem um metodo com o mesmo nome
 	 * e exatamente os mesmos tipos de parametros, na mesma ordem.
