@@ -79,6 +79,9 @@ import plp.debug.objetos2.DecProcedimentoSimplesDebug;
 import loo2.plp.orientadaObjetos2.Programa;
 import loo2.plp.orientadaObjetos2.declaracao.DecConstrutor;
 import loo2.plp.orientadaObjetos2.declaracao.DecOO;
+import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
+import loo2.plp.orientadaObjetos2.declaracao.protocolo.DecProtocolo;
+import loo2.plp.orientadaObjetos2.declaracao.protocolo.ListaAssinatura;
 import loo2.plp.orientadaObjetos2.declaracao.ListaDeclaracaoOO;
 import loo2.plp.orientadaObjetos2.declaracao.classe.DecClasseSimplesOO2;
 import loo2.plp.orientadaObjetos2.memoria.ContextoCompilacaoOO2;
@@ -86,6 +89,7 @@ import loo2.plp.orientadaObjetos2.memoria.ContextoExecucaoOO2;
 import loo2.plp.orientadaObjetos2.comando.*;
 import loo2.plp.orientadaObjetos2.expressao.leftExpression.*;
 import loo2.plp.orientadaObjetos2.declaracao.variavel.DecVariavelObjetoOO2;
+import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 /**
  * Parser para a Linguagem de Programa��o Orientada a Objetos 2
@@ -236,6 +240,7 @@ TOKEN : /* TOKENS DE OO1 */
 TOKEN : /* TOKENS DE OO2 */
 {
   < EXTENDS : "extends" >
+| < PROTOCOLO : "protocolo" >
 }
 
 TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
@@ -243,6 +248,7 @@ TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
   < INT : "int" >
 | < BOOLEAN : "boolean" >
 | < STRING : "string" >
+| < DYN : "dyn" >
 }
 
 TOKEN : /* LITERALS */
@@ -1104,26 +1110,101 @@ AcessoAtributoIdOO2 PAcessoAtributoIdChamador() :
 }
 
 /**
-*ListaDeclaracaoOO := DecClasse
-*                   | DecClasse "," ListaDeclaracaoOO
+*ListaDeclaracaoOO := DecOO
+*                   | DecOO "," ListaDeclaracaoOO
 **/
 
 ListaDeclaracaoOO PListaDeclaracaoOO() :
 {
 	ListaDeclaracaoOO retorno;
-	DecClasse decClasse;
+	DecOO decOO;
 }
 {
   (
-    LOOKAHEAD(PDecClasseAtomica() < COMMA >)
-    	retorno = PDecClasseComposta()
-  	|decClasse = PDecClasseAtomica()
+    LOOKAHEAD(PDecOO() < COMMA >)
+    	retorno = PDecOOComposta()
+  	|decOO = PDecOO()
   	{
-    	retorno = new ListaDeclaracaoOO((DecOO) decClasse);
+    	retorno = new ListaDeclaracaoOO(decOO);
   	}
   )
   {
     return retorno;
+  }
+}
+
+/**
+ * DecOO ::= DecClasse | DecProtocolo
+ **/
+DecOO PDecOO() :
+{
+  DecOO retorno;
+  DecClasse decClasse;
+}
+{
+  (
+    LOOKAHEAD(< PROTOCOLO >)
+    retorno = PDecProtocolo()
+  | decClasse = PDecClasseAtomica()
+    {
+      retorno = (DecOO) decClasse;
+    }
+  )
+  {
+    return retorno;
+  }
+}
+
+/**
+ * DecProtocolo ::= "protocolo" Id "{" ListaAssinatura "}"
+ **/
+DecProtocolo PDecProtocolo() :
+{
+  Id nome;
+  ListaAssinatura assinaturas;
+}
+{
+  < PROTOCOLO > nome = PId() < LBRACE > assinaturas = PListaAssinatura() < RBRACE >
+  {
+    return new DecProtocolo(nome, assinaturas);
+  }
+}
+
+/**
+ * ListaAssinatura ::= Assinatura | Assinatura "," ListaAssinatura
+ **/
+ListaAssinatura PListaAssinatura() :
+{
+  Assinatura assinatura;
+  ListaAssinatura resto = null;
+}
+{
+  assinatura = PAssinatura() [ < COMMA > resto = PListaAssinatura() ]
+  {
+    if (resto == null)
+    {
+      return new ListaAssinatura(assinatura);
+    }
+    return new ListaAssinatura(assinatura, resto);
+  }
+}
+
+/**
+ * Assinatura ::= "proc" Id "(" [ ListaDeclaracaoParametro ] ")"
+ **/
+Assinatura PAssinatura() :
+{
+  Id nome;
+  ListaDeclaracaoParametro listaPar = null;
+}
+{
+  < PROC > nome = PId() < LPAREN > [ listaPar = PListaDeclaracaoParametro() ] < RPAREN >
+  {
+    if (listaPar == null)
+    {
+      listaPar = new ListaDeclaracaoParametro();
+    }
+    return new Assinatura(nome, listaPar);
   }
 }
 
@@ -1190,17 +1271,17 @@ DecClasse PDecClasseAtomica() :
 }
 
 /**
- * ...  | DecClasse "," ListaDeclaracaoOO
+ * ...  | DecOO "," ListaDeclaracaoOO
  **/
-ListaDeclaracaoOO PDecClasseComposta() :
+ListaDeclaracaoOO PDecOOComposta() :
 {
-  DecClasse d1;
+  DecOO d1;
   ListaDeclaracaoOO d2;
 }
 {
-  d1 = PDecClasseAtomica() < COMMA > d2 = PListaDeclaracaoOO()
+  d1 = PDecOO() < COMMA > d2 = PListaDeclaracaoOO()
   {
-    return new ListaDeclaracaoOO((DecOO) d1, d2);
+    return new ListaDeclaracaoOO(d1, d2);
   }
 }
 
@@ -1466,7 +1547,7 @@ DecParametro PDecParametroAtomico() :
 }
 
 /**
- * Tipo ::= TipoClasse | TipoPrimitivo
+ * Tipo ::= TipoPrimitivo | TipoClasse | TipoDinamico
  **/
 Tipo PTipo() :
 {
@@ -1478,10 +1559,23 @@ Tipo PTipo() :
   | < INT >
   | < BOOLEAN >)
     tipo = PTipoPrimitivo()
+  | tipo = PTipoDinamico()
   | tipo = PTipoClasse()
   )
   {
     return tipo;
+  }
+}
+
+/**
+ * TipoDinamico ::= "dyn"
+ **/
+Tipo PTipoDinamico() :
+{}
+{
+  < DYN >
+  {
+    return TipoDinamico.DYN;
   }
 }
 
