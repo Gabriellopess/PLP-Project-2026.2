@@ -137,17 +137,30 @@ public class NewOO2 implements Comando {
 	/**
 	 * O comando x := new C(...) esta bem tipado se C for uma classe declarada
 	 * (um protocolo nao pode ser instanciado) e C for compativel com o tipo
-	 * de x (igualdade, heranca, protocolos e dyn).
+	 * de x (igualdade, heranca, protocolos e dyn), e se os argumentos
+	 * servirem ao construtor de C, como na declaracao T x := new C(...).
 	 */
 	public boolean checaTipo(AmbienteCompilacaoOO1 ambiente) throws VariavelNaoDeclaradaException,
-			ClasseJaDeclaradaException, ClasseNaoDeclaradaException {
+			VariavelJaDeclaradaException, ClasseJaDeclaradaException, ClasseNaoDeclaradaException {
 		TipoClasse tpClasse = new TipoClasse(getClasse());
 		boolean ehProtocolo = ambiente instanceof AmbienteProtocolosOO2
 				&& ((AmbienteProtocolosOO2) ambiente).ehProtocolo(getClasse());
 		return getAv().checaTipo(ambiente)
 				&& !ehProtocolo
 				&& tpClasse.eValido(ambiente)
-				&& CompatibilidadeTipos.ehCompativel(tpClasse, getAv().getTipo(ambiente), ambiente);
+				&& CompatibilidadeTipos.ehCompativel(tpClasse, getAv().getTipo(ambiente), ambiente)
+				&& checaTipoConstrutor(ambiente);
+	}
+
+	private boolean checaTipoConstrutor(AmbienteCompilacaoOO1 ambiente) throws VariavelNaoDeclaradaException,
+			VariavelJaDeclaradaException, ClasseNaoDeclaradaException {
+		DefClasseOO2 defClasse = (DefClasseOO2) ambiente.getDefClasse(getClasse());
+		Procedimento construtor = defClasse.getConstrutor().getProcedimento();
+		try {
+			return new ChamadaProcedimento(construtor, parametrosReais).checaTipo(ambiente);
+		} catch (ProcedimentoNaoDeclaradoException e) {
+			return false;
+		}
 	}
 
 }
