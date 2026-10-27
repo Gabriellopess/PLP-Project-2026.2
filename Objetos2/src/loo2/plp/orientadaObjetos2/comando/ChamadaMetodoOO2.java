@@ -30,6 +30,7 @@ import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
 import loo2.plp.orientadaObjetos2.excecao.ProtocoloNaoDeclaradoException;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.DefClasseOO2;
+import loo2.plp.orientadaObjetos2.util.TipoDinamico;
 
 public class ChamadaMetodoOO2 extends ChamadaMetodo {
 
@@ -90,6 +91,10 @@ public class ChamadaMetodoOO2 extends ChamadaMetodo {
         //Se n�o for v�lido, a exce��o ProcedimentoNaoDeclaradoException ser�
         //lan�ada e checaTipo retornar� false.
         Tipo tipoClasse = expressao.getTipo(ambiente);
+        if (tipoClasse instanceof TipoDinamico) {
+            // dyn: o metodo so e procurado na execucao, pela classe real
+            return expressao.checaTipo(ambiente) && checaTipoArgumentos(ambiente);
+        }
         if (ambiente instanceof AmbienteCompilacaoOO2
                 && ((AmbienteCompilacaoOO2) ambiente).ehProtocolo(tipoClasse.getTipo())) {
             return checaTipoProtocolo((AmbienteCompilacaoOO2) ambiente, tipoClasse.getTipo());
