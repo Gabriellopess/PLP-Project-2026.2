@@ -214,6 +214,7 @@ Os caminhos abaixo são relativos a `Objetos2/src/loo2/plp/`. Toda mudança de g
 | `orientadaObjetos2/comando/NewOO2.java` | `C ≼ tipo(x)` e conferência dos argumentos do construtor. Deixa de herdar de `New` (OO1) e implementa `Comando`: antes, o comando `x := new C(..)` executava o `New` de OO1, que não rodava o construtor nem criava os atributos herdados. Na execução, chama `confereArgumentos` antes do construtor. |
 | `orientadaObjetos2/declaracao/variavel/DecVariavelObjetoOO2.java` | Associa a variável ao tipo declarado quando ele é `dyn` ou protocolo. Rejeita `new P()` quando `P` é protocolo. |
 | `orientadaObjetos2/expressao/leftExpression/AcessoAtributoIdOO2.java` | Erro de tipo quando o objeto acessado é `dyn` ou protocolo. |
+| `WebDebug/src/plp/debug/objetos2/parser/OO2Debug.jj` (fora de `Objetos2`) | Mesmos tokens e produções novas do `OO2.jj`, para a interface web aceitar os programas com `protocolo` e `dyn`. |
 
 ### Esboço de `CompatibilidadeTipos`
 
@@ -467,10 +468,10 @@ ErroDuckTypingException: argumento 1 de ouvir: Pedra não satisfaz Falante
 
 ## Plano de implementação
 
-Cada passo vira um commit na branch `dev` e mantém os testes de OO2 que já existem (`Testes/TesteOO2_*.txt`) passando.
+Todos os passos abaixo foram implementados, cada um num PR para a branch `dev`, sem alterar a saída dos testes de OO2 que já existiam (`Testes/TesteOO2_Construtor`, `_Heranca` e `_Heranca2`).
 
 1. **BNF e README**: documentar a gramática e a semântica (este documento).
-2. **Parser**: tokens `protocolo` e `dyn` e as novas produções em `OO2.jj`, espelhadas em `WebDebug/.../OO2Debug.jj`. Ao fim deste passo, os programas dos exemplos são reconhecidos pelo parser.
+2. **Parser**: tokens `protocolo` e `dyn` e as novas produções em `OO2.jj`. Ao fim deste passo, os programas dos exemplos são reconhecidos pelo parser. (O espelhamento em `WebDebug/.../OO2Debug.jj` ficou para o passo 8.)
 3. **AST e ambientes**: `DecOO`, `DecProtocolo`, `Assinatura`, `DefProtocolo` e `TipoDinamico`, mais os mapas de protocolo em `ContextoCompilacaoOO2` e `ContextoExecucaoOO2`.
 4. **Compatibilidade**: `CompatibilidadeTipos` e troca de `equals` por `≼` em `ChamadaProcedimento`, `SimplesDecVariavel`, `AtribuicaoOO2`, `NewOO2` e `DecVariavelObjetoOO2`.
 5. **Chamada de método estática**: `ChamadaMetodoOO2.checaTipo` com os casos de protocolo e `dyn`.
@@ -488,6 +489,8 @@ Cada passo vira um commit na branch `dev` e mantém os testes de OO2 que já exi
 | 7 | `TesteOO2_ProtocoloAssinaturas.txt` |
 | 8 | `TesteOO2_ProtocoloHeranca.txt` |
 | 9 | `TesteOO2_DynParaProtocolo.txt` |
+
+8. **Interface web**: `WebDebug/src/plp/debug/objetos2/parser/OO2Debug.jj` passa a reconhecer `protocolo` e `dyn`, com as mesmas produções do `OO2.jj` (`PDecOO`, `PDecProtocolo`, `PListaAssinatura`, `PAssinatura`, `PTipoDinamico` e a alternativa `dyn` em `PTipo`). Os testes de `Testes/` dão na WebAPI o mesmo resultado da linha de comando. Na web, um erro de execução aparece como mensagem, sem o prefixo `ErroDuckTypingException:`, e um erro de tipo aparece como `erro de tipos!`.
 
 ## Como executar
 
