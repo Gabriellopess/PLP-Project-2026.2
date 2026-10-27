@@ -475,7 +475,19 @@ Cada passo vira um commit na branch `dev` e mantém os testes de OO2 que já exi
 4. **Compatibilidade**: `CompatibilidadeTipos` e troca de `equals` por `≼` em `ChamadaProcedimento`, `SimplesDecVariavel`, `AtribuicaoOO2`, `NewOO2` e `DecVariavelObjetoOO2`.
 5. **Chamada de método estática**: `ChamadaMetodoOO2.checaTipo` com os casos de protocolo e `dyn`.
 6. **Chamada de método dinâmica**: checagens em `ChamadaMetodoOO2.executar`, `NewOO2.executar`, `AtribuicaoOO2` e `SimplesDecVariavel` (via `CompatibilidadeTipos.confereArgumentos` e `valorCompativel`), e `ErroDuckTypingException`.
-7. **Testes**: um arquivo em `Testes/` por exemplo desta seção (`TesteOO2_DuckDyn.txt`, `TesteOO2_DuckDynErro.txt`, `TesteOO2_Protocolo.txt`, `TesteOO2_ProtocoloErro.txt`, ...), cobrindo os casos aceitos, os erros de tipo e os erros de execução.
+7. **Testes**: um arquivo em `Testes/` por exemplo desta seção, cobrindo os casos aceitos, os erros de tipo e os erros de execução. Cada arquivo traz a saída esperada num comentário no topo (`// Saida esperada:`), conferida pelo script `Testes/roda_testes_oo2.sh`.
+
+| Exemplo | Arquivo |
+|---|---|
+| 1 | `TesteOO2_DuckDyn.txt` |
+| 2 | `TesteOO2_DuckDynErro.txt` |
+| 3 | `TesteOO2_DuckDynParametro.txt` |
+| 4 | `TesteOO2_Protocolo.txt` |
+| 5 | `TesteOO2_ProtocoloErro.txt` |
+| 6 | `TesteOO2_ProtocoloVisibilidade.txt` |
+| 7 | `TesteOO2_ProtocoloAssinaturas.txt` |
+| 8 | `TesteOO2_ProtocoloHeranca.txt` |
+| 9 | `TesteOO2_DynParaProtocolo.txt` |
 
 ## Como executar
 
@@ -484,3 +496,11 @@ cd Objetos2
 mvn -q -B compile
 java -cp target/classes loo2.plp.orientadaObjetos2.parser.OO2Parser ../Testes/TesteOO2_Protocolo.txt
 ```
+
+Para rodar todos os testes de duck typing e comparar com a saída esperada (a partir da raiz, depois de compilar):
+
+```bash
+Testes/roda_testes_oo2.sh
+```
+
+O script imprime `ok` ou `DIFERE` (com o `diff`) para cada teste e termina com o total, por exemplo `9/9 ok`. Os testes `TesteOO2_*` anteriores ao projeto não têm saída esperada e são ignorados por ele.
