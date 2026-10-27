@@ -162,7 +162,7 @@ executar(e.m(a1..an)):
   se pm não existe                    -> ErroDuckTypingException("classe C não possui método m")
   se |parâmetros de pm| != n          -> ErroDuckTypingException("m espera k argumentos, recebeu n")
   vi := avaliar(ai), para cada i
-  se não tipoDoValor(vi) ≼ Ti         -> ErroDuckTypingException("argumento i de m incompatível")
+  se não tipoDoValor(vi) ≼ Ti         -> ErroDuckTypingException("argumento i de m: C não satisfaz Ti")
   executa pm com this = v             (como hoje)
 ```
 
@@ -196,7 +196,7 @@ Os caminhos abaixo são relativos a `Objetos2/src/loo2/plp/`. Toda mudança de g
 | `orientadaObjetos2/declaracao/protocolo/Assinatura.java` e `ListaAssinatura.java` | Nome do método mais `ListaDeclaracaoParametro` (reaproveitada de OO1). |
 | `orientadaObjetos2/memoria/DefProtocolo.java` | Definição guardada no ambiente: `getAssinatura(Id)`, `getAssinaturas()`. |
 | `orientadaObjetos2/util/TipoDinamico.java` | Implementa `Tipo`. Singleton `TipoDinamico.DYN`, `eValido` sempre `true`, `toString() = "dyn"`. |
-| `orientadaObjetos2/util/CompatibilidadeTipos.java` | Implementa `≼` (`ehCompativel`), `satisfaz(classe, protocolo)` e `tipoDoValor(valor, ambiente)`. Reaproveita `HierarquiaUtils.ehSubTipo` para a regra R3. |
+| `orientadaObjetos2/util/CompatibilidadeTipos.java` | Implementa `≼` (`ehCompativel`), `satisfaz(classe, protocolo)` e `contem(P, Q)` na compilação, e `tipoDoValor(valor, ambiente)`, `valorCompativel(valor, tipo, ambiente)` e `confereArgumentos(metodo, formais, valores, ambiente)` na execução. Reaproveita `HierarquiaUtils.ehSubTipo` para a regra R3. |
 | `orientadaObjetos2/excecao/ErroDuckTypingException.java` | Erro de execução das checagens dinâmicas. Estende `RuntimeException` para não precisar alterar a cláusula `throws` de todos os `Comando`. O `main` do parser já captura `Exception` e reporta o erro. |
 | `orientadaObjetos2/excecao/ProtocoloJaDeclaradoException.java` e `ProtocoloNaoDeclaradoException.java` | Equivalentes às exceções de classe. |
 
@@ -208,9 +208,10 @@ Os caminhos abaixo são relativos a `Objetos2/src/loo2/plp/`. Toda mudança de g
 | `orientadaObjetos2/declaracao/ListaDeclaracaoOO.java` | Passa de `Lista<DecClasse>` para `Lista<DecOO>`, e os casts para `DecClasseSimplesOO2` são removidos. |
 | `orientadaObjetos2/memoria/AmbienteCompilacaoOO2.java`, `ContextoCompilacaoOO2.java`, `AmbienteExecucaoOO2.java` e `ContextoExecucaoOO2.java` | Ganham `mapProtocolo(Id, DefProtocolo)`, `getDefProtocolo(Id)` e `ehProtocolo(Id)`. O `map` de classe e o de protocolo rejeitam nomes já usados pelo outro. |
 | `orientadaObjetos1/util/TipoClasse.java` | `eValido` passa a aceitar um `Id` que nomeie uma classe **ou** um protocolo. |
-| `orientadaObjetos2/comando/ChamadaMetodoOO2.java` | `checaTipo` se divide nos três casos da tabela de chamada (classe / protocolo / `dyn`). `executar` ganha as checagens dinâmicas descritas acima. |
-| `orientadaObjetos1/comando/ChamadaProcedimento.java` | `checaTipo`: `listaTipo.head().equals(tipoFormal)` passa a ser `CompatibilidadeTipos.ehCompativel(...)`. `bindParameters`: confere `tipoDoValor(v) ≼ tipoFormal` antes de ligar cada parâmetro, o que implementa a regra R7 (para argumentos de classe ou protocolo, a checagem sempre passa). |
-| `orientadaObjetos1/declaracao/variavel/SimplesDecVariavel.java`, `orientadaObjetos2/comando/AtribuicaoOO2.java` e `orientadaObjetos2/comando/NewOO2.java` | Igualdade de tipos substituída por `≼`. Em `AtribuicaoOO2`, o método privado `defClasseRightExtendsDefClasseLeft` é absorvido por `CompatibilidadeTipos`. |
+| `orientadaObjetos2/comando/ChamadaMetodoOO2.java` | `checaTipo` se divide nos três casos da tabela de chamada (classe / protocolo / `dyn`). `executar` ganha as checagens dinâmicas descritas acima (receptor `null`, método inexistente e `confereArgumentos`). O corpo do método passa a rodar num `ContextoExecucaoOO2`, que carrega os protocolos. |
+| `orientadaObjetos1/comando/ChamadaProcedimento.java` | `checaTipo`: `listaTipo.head().equals(tipoFormal)` passa a ser `CompatibilidadeTipos.ehCompativel(...)`. O `bindParameters` **não** foi alterado: as checagens de execução dos argumentos (aridade e `tipoDoValor(v) ≼ tipoFormal`, a regra R7) ficam em `CompatibilidadeTipos.confereArgumentos`, chamada por `ChamadaMetodoOO2.executar` e `NewOO2.executar` antes de ligar os parâmetros. O motivo é que `ChamadaProcedimento` não conhece o nome do método, necessário para as mensagens de erro. Para argumentos de classe ou protocolo, a checagem sempre passa. |
+| `orientadaObjetos1/declaracao/variavel/SimplesDecVariavel.java` e `orientadaObjetos2/comando/AtribuicaoOO2.java` | Igualdade de tipos substituída por `≼`. Em `AtribuicaoOO2`, o método privado `defClasseRightExtendsDefClasseLeft` é absorvido por `CompatibilidadeTipos`. Quando a expressão é `dyn` e a variável não é, o `checaTipo` marca o nó e a execução confere `valorCompativel` antes de gravar (regra R7). |
+| `orientadaObjetos2/comando/NewOO2.java` | `C ≼ tipo(x)` e conferência dos argumentos do construtor. Deixa de herdar de `New` (OO1) e implementa `Comando`: antes, o comando `x := new C(..)` executava o `New` de OO1, que não rodava o construtor nem criava os atributos herdados. Na execução, chama `confereArgumentos` antes do construtor. |
 | `orientadaObjetos2/declaracao/variavel/DecVariavelObjetoOO2.java` | Associa a variável ao tipo declarado quando ele é `dyn` ou protocolo. Rejeita `new P()` quando `P` é protocolo. |
 | `orientadaObjetos2/expressao/leftExpression/AcessoAtributoIdOO2.java` | Erro de tipo quando o objeto acessado é `dyn` ou protocolo. |
 
@@ -241,7 +242,7 @@ public static boolean satisfaz(Id classe, Id protocolo, AmbienteCompilacaoOO2 am
 }
 ```
 
-Em tempo de execução, o mesmo código é usado com `tipoDoValor(v)` no lugar de `t`. Por isso as consultas ao ambiente (`getDefClasse`, `getDefProtocolo`, superclasse) vão ficar em uma interface comum aos ambientes de compilação e de execução.
+Em tempo de execução, o mesmo código é usado com `tipoDoValor(v)` no lugar de `t`. Por isso as consultas ao ambiente (`getDefClasse`, `getDefProtocolo`, superclasse) ficam numa interface interna (`Definicoes`), com uma implementação para o ambiente de compilação e outra para o de execução.
 
 ## Exemplos
 
@@ -473,7 +474,7 @@ Cada passo vira um commit na branch `dev` e mantém os testes de OO2 que já exi
 3. **AST e ambientes**: `DecOO`, `DecProtocolo`, `Assinatura`, `DefProtocolo` e `TipoDinamico`, mais os mapas de protocolo em `ContextoCompilacaoOO2` e `ContextoExecucaoOO2`.
 4. **Compatibilidade**: `CompatibilidadeTipos` e troca de `equals` por `≼` em `ChamadaProcedimento`, `SimplesDecVariavel`, `AtribuicaoOO2`, `NewOO2` e `DecVariavelObjetoOO2`.
 5. **Chamada de método estática**: `ChamadaMetodoOO2.checaTipo` com os casos de protocolo e `dyn`.
-6. **Chamada de método dinâmica**: checagens em `ChamadaMetodoOO2.executar` e `ChamadaProcedimento.bindParameters`, e `ErroDuckTypingException`.
+6. **Chamada de método dinâmica**: checagens em `ChamadaMetodoOO2.executar`, `NewOO2.executar`, `AtribuicaoOO2` e `SimplesDecVariavel` (via `CompatibilidadeTipos.confereArgumentos` e `valorCompativel`), e `ErroDuckTypingException`.
 7. **Testes**: um arquivo em `Testes/` por exemplo desta seção (`TesteOO2_DuckDyn.txt`, `TesteOO2_DuckDynErro.txt`, `TesteOO2_Protocolo.txt`, `TesteOO2_ProtocoloErro.txt`, ...), cobrindo os casos aceitos, os erros de tipo e os erros de execução.
 
 ## Como executar
