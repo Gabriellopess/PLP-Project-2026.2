@@ -16,10 +16,13 @@ public class AtribuicaoOO2 extends Atribuicao {
 	
 	/**
 	 * A atribuicao x := e esta bem tipada se o tipo de e for compativel com o
-	 * tipo de x (igualdade, null, heranca, protocolos e dyn).
+	 * tipo de x (igualdade, null, heranca, protocolos e dyn). O lado esquerdo
+	 * e verificado antes de se ler o seu tipo, para que um atributo
+	 * inexistente, ou acessado por dyn ou protocolo, seja erro de tipo.
 	 */
     public boolean checaTipo(AmbienteCompilacaoOO1 ambiente) throws VariavelNaoDeclaradaException, ClasseNaoDeclaradaException {
-    	return expressao.checaTipo(ambiente)
+    	return av.checaTipo(ambiente)
+    			&& expressao.checaTipo(ambiente)
     			&& CompatibilidadeTipos.ehCompativel(expressao.getTipo(ambiente), av.getTipo(ambiente), ambiente);
     }
 
