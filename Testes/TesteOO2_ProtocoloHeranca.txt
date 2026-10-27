@@ -1,0 +1,29 @@
+// Exemplo 8 do README: heranca e compatibilidade entre protocolos.
+// Marreco satisfaz Anfibio: nadar vem de Marreco e falar e herdado de Ave
+// (regra R4). Todo Anfibio e um Falante (regra R5), entao "Falante f = a"
+// e valido. Ave sozinha nao satisfaz Anfibio (falta nadar).
+// Saida esperada:
+//   Patinhas nadando
+//   Patinhas: piu
+{
+  protocolo Falante { proc falar() },
+  protocolo Anfibio { proc falar(), proc nadar() },
+  classe Ave {
+    string nome = "";
+    Ave(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": piu") }
+  },
+  classe Marreco extends Ave {
+    int x = 0;
+    Marreco(string nome) { this.nome := nome },
+    proc nadar() { write(this.nome ++ " nadando") }
+  };
+  {
+    Anfibio a := new Marreco("Patinhas");
+    a.nadar();
+    {
+      Falante f = a;
+      f.falar()
+    }
+  }
+}

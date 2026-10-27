@@ -1,0 +1,27 @@
+// Exemplo 5 do README: classe que nao satisfaz o protocolo e recusada.
+// Pedra nao tem falar(), entao o programa nao chega a executar.
+// Saida esperada:
+//   Erro de tipo
+{
+  protocolo Falante {
+    proc falar()
+  },
+  classe Pedra {
+    int peso = 0;
+    Pedra(int peso) { this.peso := peso },
+    proc rolar() { write("rolando") }
+  },
+  classe Plateia {
+    int ouvidos = 0;
+    Plateia() { skip },
+    proc ouvir(Falante f) {
+      this.ouvidos := this.ouvidos + 1;
+      f.falar()
+    }
+  };
+  {
+    Plateia pl := new Plateia(),
+    Pedra pd := new Pedra(10);
+    pl.ouvir(pd)
+  }
+}

@@ -1,0 +1,27 @@
+// Exemplo 7 do README: as assinaturas precisam bater nos tipos.
+// ContadorInteiro satisfaz Contador (o nome do parametro nao importa, so o
+// tipo). ContadorTexto nao satisfaz (string em vez de int): trocar a
+// declaracao para "Contador c := new ContadorTexto()" da Erro de tipo.
+// Saida esperada:
+//   5
+//   7
+{
+  protocolo Contador {
+    proc incrementar(int passo)
+  },
+  classe ContadorInteiro {
+    int valor = 0;
+    ContadorInteiro() { skip },
+    proc incrementar(int n) { this.valor := this.valor + n; write(this.valor) }
+  },
+  classe ContadorTexto {
+    string valor = "";
+    ContadorTexto() { skip },
+    proc incrementar(string s) { this.valor := this.valor ++ s }
+  };
+  {
+    Contador c := new ContadorInteiro();
+    c.incrementar(5);
+    c.incrementar(2)
+  }
+}
