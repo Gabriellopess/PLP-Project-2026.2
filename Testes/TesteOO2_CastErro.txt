@@ -1,0 +1,32 @@
+// O cast e aceito na compilacao, mas o objeto real e uma Ave, que nao tem
+// nadar(). O erro aparece na execucao.
+// Saida esperada:
+//   ErroDuckTypingException: cast: Ave não satisfaz Anfibio
+{
+  protocolo Anfibio {
+    proc nadar()
+  },
+  classe Ave {
+    string nome = "";
+    Ave(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": piu") }
+  },
+  classe Marreco extends Ave {
+    int x = 0;
+    Marreco(string nome) { this.nome := nome },
+    proc nadar() { write(this.nome ++ " nadando") }
+  },
+  classe Lago {
+    int visitas = 0;
+    Lago() { skip },
+    proc receber(Anfibio a) {
+      this.visitas := this.visitas + 1;
+      a.nadar()
+    }
+  };
+  {
+    Lago l := new Lago(),
+    Ave a := new Ave("Pernalonga");
+    l.receber(cast(Anfibio, a))
+  }
+}
