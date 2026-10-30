@@ -1,0 +1,34 @@
+// Variavel do tipo da superclasse, objeto de uma subclasse que satisfaz o
+// protocolo (regra R4 usa o tipo estatico declarado, nao o objeto).
+// Ave nao tem nadar(), entao "Ave a" nao satisfaz Anfibio, mesmo que
+// o objeto seja um Marreco. O programa nao chega a executar.
+// Saida esperada:
+//   Erro de tipo
+{
+  protocolo Anfibio {
+    proc nadar()
+  },
+  classe Ave {
+    string nome = "";
+    Ave(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": piu") }
+  },
+  classe Marreco extends Ave {
+    int x = 0;
+    Marreco(string nome) { this.nome := nome },
+    proc nadar() { write(this.nome ++ " nadando") }
+  },
+  classe Lago {
+    int visitas = 0;
+    Lago() { skip },
+    proc receber(Anfibio a) {
+      this.visitas := this.visitas + 1;
+      a.nadar()
+    }
+  };
+  {
+    Lago l := new Lago(),
+    Ave a := new Marreco("Patinhas");
+    l.receber(a)
+  }
+}
