@@ -14,6 +14,7 @@ import loo2.plp.orientadaObjetos1.excecao.execucao.EntradaNaoFornecidaException;
 import loo2.plp.orientadaObjetos1.memoria.colecao.ListaValor;
 import loo2.plp.orientadaObjetos2.declaracao.ConstrutorNaoDeclaradoException;
 import loo2.plp.orientadaObjetos2.declaracao.ListaDeclaracaoOO;
+import loo2.plp.orientadaObjetos2.excecao.ProtocoloJaDeclaradoException;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteCompilacaoOO2;
 import loo2.plp.orientadaObjetos2.memoria.AmbienteExecucaoOO2;
 
@@ -58,7 +59,8 @@ public class Programa {
                ObjetoNaoDeclaradoException, ObjetoJaDeclaradoException,
                ProcedimentoJaDeclaradoException,ProcedimentoNaoDeclaradoException,
                ClasseJaDeclaradaException, ClasseNaoDeclaradaException,
-               EntradaNaoFornecidaException, EntradaInvalidaException, ConstrutorNaoDeclaradoException {
+               EntradaNaoFornecidaException, EntradaInvalidaException, ConstrutorNaoDeclaradoException,
+               ProtocoloJaDeclaradoException {
         if(ambiente == null)
             throw new EntradaNaoFornecidaException();
         ambiente.incrementa();
@@ -83,7 +85,8 @@ public class Programa {
         throws VariavelNaoDeclaradaException, VariavelJaDeclaradaException,
                ProcedimentoNaoDeclaradoException, ProcedimentoJaDeclaradoException,
                ClasseJaDeclaradaException, ClasseNaoDeclaradaException,
-               EntradaNaoFornecidaException, ConstrutorNaoDeclaradoException{
+               EntradaNaoFornecidaException, ConstrutorNaoDeclaradoException,
+               ProtocoloJaDeclaradoException {
         boolean resposta;
         if(ambiente == null) {
             throw new EntradaNaoFornecidaException();

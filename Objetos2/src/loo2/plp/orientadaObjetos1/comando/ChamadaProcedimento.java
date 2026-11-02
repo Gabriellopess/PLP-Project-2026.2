@@ -15,6 +15,7 @@ import loo2.plp.orientadaObjetos1.memoria.AmbienteCompilacaoOO1;
 import loo2.plp.orientadaObjetos1.memoria.AmbienteExecucaoOO1;
 import loo2.plp.orientadaObjetos1.memoria.colecao.ListaValor;
 import loo2.plp.orientadaObjetos1.util.ListaTipo;
+import loo2.plp.orientadaObjetos2.util.CompatibilidadeTipos;
 
 /**
  * Classe que representa uma chamada de um procedimento.
@@ -127,7 +128,8 @@ public class ChamadaProcedimento implements Comando {
                 // tem parametros formais de tipos diferentes
                 // de parametros reais na ordem em que se apresentam?
                 while(listaTipo != null && parametrosFormais != null) {
-                    if( ! listaTipo.head().equals(parametrosFormais.getHead().getTipo())) {
+                    if( ! CompatibilidadeTipos.ehCompativel(listaTipo.head(),
+                            parametrosFormais.getHead().getTipo(), ambiente)) {
                         resposta = false;
                         break;
                     }
