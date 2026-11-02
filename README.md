@@ -544,3 +544,17 @@ Testes/roda_testes_oo2.sh
 ```
 
 O script imprime `ok` ou `DIFERE` (com o `diff`) para cada teste e termina com o total, por exemplo `9/9 ok`. Os testes `TesteOO2_*` anteriores ao projeto não têm saída esperada e são ignorados por ele.
+
+### Interface web e página da BNF
+
+A IDE web (`WebUI`) roda os programas de OO2 no navegador, usando o interpretador compilado para JavaScript (`plp.js`, gerado pelo TeaVM a partir da `WebAPI`):
+
+```bash
+cd WebUI
+npm install
+npm start      # compila a WebAPI com o Maven e sobe a IDE em http://localhost:4004
+```
+
+O link **BNF OO2**, no cabeçalho da IDE, abre `bnf.html`: a BNF acima em texto puro, com as produções novas ou alteradas marcadas com `(*)`. O nome dessas produções leva ao código Java que as implementa, em formato raw, no GitHub. O texto fica em `WebUI/src/bnf/oo2-bnf.txt` e a lista nome → arquivo em `WebUI/src/bnf/BnfPage.tsx`; ao mudar a gramática, atualize os dois.
+
+No GitHub Pages (workflow `.github/workflows/docs.yml`), a IDE é publicada em `<site>/ide/` e a BNF em `<site>/ide/bnf.html`, e os links raw apontam para o commit publicado.
