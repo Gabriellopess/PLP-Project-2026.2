@@ -1,0 +1,75 @@
+BNF de OO2 com duck typing
+==========================
+
+(*)  produção nova ou alterada pelo projeto
+     Nomes com link abrem o código que implementa a produção (raw, no GitHub).
+     Palavras reservadas novas: protocolo, dyn, cast
+
+Programa           ::= "{" ListaDeclaracaoOO ";" Comando "}"
+
+ListaDeclaracaoOO  ::= DecOO                                        (*)
+                     | DecOO "," ListaDeclaracaoOO                  (*)
+
+DecOO              ::= DecClasse | DecProtocolo                     (*)
+
+DecClasse          ::= "classe" Id [ "extends" Id ]
+                       "{" DecVariavel ";" DecConstrutor "," DecProcedimento "}"
+
+DecProtocolo       ::= "protocolo" Id "{" ListaAssinatura "}"       (*)
+
+ListaAssinatura    ::= Assinatura                                   (*)
+                     | Assinatura "," ListaAssinatura
+
+Assinatura         ::= "proc" Id "(" [ ListaDeclaracaoParametro ] ")"   (*)
+
+DecConstrutor      ::= Id "(" [ ListaDeclaracaoParametro ] ")" "{" Comando "}"
+
+DecProcedimento    ::= "proc" Id "(" [ ListaDeclaracaoParametro ] ")" "{" Comando "}"
+                     | DecProcedimento "," DecProcedimento
+
+ListaDeclaracaoParametro ::= Tipo Id
+                           | Tipo Id "," ListaDeclaracaoParametro
+
+DecVariavel        ::= Tipo Id "=" Expressao
+                     | Tipo Id ":=" "new" Id "(" [ ListaExpressao ] ")"
+                     | DecVariavel "," DecVariavel
+
+Tipo               ::= TipoPrimitivo | TipoClasse | TipoDinamico    (*)
+TipoPrimitivo      ::= "int" | "boolean" | "string"
+TipoClasse         ::= Id                                           (*)
+TipoDinamico       ::= "dyn"                                        (*)
+
+Comando            ::= Atribuicao
+                     | ComDeclaracao
+                     | While
+                     | IfThenElse
+                     | IO
+                     | Comando ";" Comando
+                     | Skip
+                     | New
+                     | ChamadaMetodo
+
+Skip               ::= "skip"
+ComDeclaracao      ::= "{" DecVariavel ";" Comando "}"
+While              ::= "while" Expressao "do" "{" Comando "}"
+IfThenElse         ::= "if" Expressao "then" "{" Comando "}"
+                     | "if" Expressao "then" "{" Comando "}" "else" "{" Comando "}"
+IO                 ::= "write" "(" Expressao ")" | "read" "(" Id ")"
+New                ::= LeftExpression ":=" "new" Id "(" [ ListaExpressao ] ")"
+Atribuicao         ::= LeftExpression ":=" Expressao
+
+ChamadaMetodo      ::= Expressao "." Id "(" [ ListaExpressao ] ")"
+                       (* sintaxe inalterada; verificação de tipos e execução alteradas *)
+
+ListaExpressao     ::= Expressao | Expressao "," ListaExpressao
+
+Expressao          ::= Valor | ExpUnaria | ExpBinaria | LeftExpression | "this"
+                     | ExpCast                                      (*)
+ExpCast            ::= "cast" "(" Tipo "," Expressao ")"            (*)
+Valor              ::= ValorInteiro | ValorBooleano | ValorString | "null"
+ExpUnaria          ::= "-" Expressao | "not" Expressao | "length" Expressao
+ExpBinaria         ::= Expressao "+" Expressao | Expressao "-" Expressao
+                     | Expressao "and" Expressao | Expressao "or" Expressao
+                     | Expressao "==" Expressao | Expressao "++" Expressao
+LeftExpression     ::= Id | AcessoAtributo
+AcessoAtributo     ::= LeftExpression "." Id | "this" "." Id
