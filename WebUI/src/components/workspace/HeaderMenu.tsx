@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 
 import { Drawer } from "@base-ui/react/drawer";
 import { Menu } from "@base-ui/react/menu";
-import { FiMoreVertical, FiUpload, FiDownload, FiFile, FiCpu, FiX } from "react-icons/fi";
+import { FiMoreVertical, FiUpload, FiDownload, FiFile, FiCpu, FiX, FiBookOpen } from "react-icons/fi";
 import { useWorkspace } from "../../hooks/useWorkspace";
 import { exportWorkspace, readWorkspaceFile } from "../../lib/io";
 import { NotebooksList } from "./NotebooksList";
@@ -10,6 +10,9 @@ import { DebuggerContent } from "./DebuggerContent";
 
 const menuItemClass =
   "flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer outline-none w-full text-left";
+
+// Pagina com a BNF de OO2 (bnf.html, segunda entrada do Vite)
+const BNF_URL = `${import.meta.env.BASE_URL}bnf.html`;
 
 const drawerBackdropClass =
   "z-50 fixed inset-0 bg-black/40 data-[open]:opacity-100 data-[closed]:opacity-0 data-[starting-style]:opacity-0 transition-opacity duration-300";
@@ -41,6 +44,13 @@ export function HeaderMenu() {
       <input ref={importInputRef} type="file" accept=".plpnb" className="hidden" onChange={handleImport} />
 
       <div className="hidden md:flex items-center gap-3">
+        <a
+          href={BNF_URL}
+          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-900 border border-gray-200 rounded-full hover:bg-gray-100 transition-colors no-underline"
+        >
+          <FiBookOpen />
+          BNF OO2
+        </a>
         <button
           type="button"
           className="flex items-center gap-2 px-4 py-2 text-sm text-gray-900 border border-gray-200 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
@@ -85,6 +95,10 @@ export function HeaderMenu() {
                 <Menu.Item className={menuItemClass} onClick={() => setDebuggerOpen(true)}>
                   <FiCpu size={14} />
                   Debugger
+                </Menu.Item>
+                <Menu.Item className={menuItemClass} onClick={() => window.location.assign(BNF_URL)}>
+                  <FiBookOpen size={14} />
+                  BNF OO2
                 </Menu.Item>
               </Menu.Popup>
             </Menu.Positioner>
