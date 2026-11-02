@@ -41,6 +41,9 @@ jobs:
         if [ -n "$base_path" ]; then
           export WEBUI_BASE="${base_path%/}/ide/"
         fi
+        # Links "raw" da pagina bnf.html: o repositorio e o commit publicados
+        export VITE_GITHUB_REPO="${{ github.repository }}"
+        export VITE_GITHUB_REF="${{ github.sha }}"
         # plp.js is the WebAPI module compiled to JS by TeaVM
         cp -r ../WebAPI/target/javascript/. public/
         # `npm install` (and not `npm ci`) until package-lock.json is regenerated
@@ -50,6 +53,13 @@ jobs:
       run: |
         mkdir -p docs/ide
         cp -r WebUI/dist/. docs/ide/
+    - name: Use the Pages base path as the Jekyll baseurl
+      # docs/_config.yml traz o baseurl do repositorio original ("/PLP"); num
+      # fork, o site fica em /<nome-do-repositorio>
+      run: |
+        base_path="${{ steps.pages.outputs.base_path }}"
+        sed -i "s|^baseurl: .*|baseurl: \"${base_path%/}\"|" docs/_config.yml
+        grep '^baseurl:' docs/_config.yml
     - name: Build with Jekyll
       uses: actions/jekyll-build-pages@v1
       with:
