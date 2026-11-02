@@ -43,7 +43,7 @@ public class ExpCast implements Expressao {
 		Valor valor = expressao.avaliar(ambiente);
 		if (!CompatibilidadeTipos.valorCompativel(valor, alvo, ambiente)) {
 			throw new ErroDuckTypingException("cast: " + CompatibilidadeTipos.tipoDoValor(valor, ambiente)
-					+ " não satisfaz " + alvo);
+					+ " n\u00e3o satisfaz " + alvo);
 		}
 		return valor;
 	}
