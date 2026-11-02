@@ -68,8 +68,6 @@ Tipo               ::= TipoPrimitivo | TipoClasse | TipoDinamico    (*)
 TipoPrimitivo      ::= "int" | "boolean" | "string"
 TipoClasse         ::= Id                                           (*)
 TipoDinamico       ::= "dyn"                                        (*)
-ExpPrimaria       ::= ... | ExpCast                                (*)
-ExpCast            ::= "cast" "(" Tipo "," Expressao ")"            (*)
 
 Comando            ::= Atribuicao
                      | ComDeclaracao
@@ -96,6 +94,8 @@ ChamadaMetodo      ::= Expressao "." Id "(" [ ListaExpressao ] ")"
 ListaExpressao     ::= Expressao | Expressao "," ListaExpressao
 
 Expressao          ::= Valor | ExpUnaria | ExpBinaria | LeftExpression | "this"
+                     | ExpCast                                      (*)
+ExpCast            ::= "cast" "(" Tipo "," Expressao ")"            (*)
 Valor              ::= ValorInteiro | ValorBooleano | ValorString | "null"
 ExpUnaria          ::= "-" Expressao | "not" Expressao | "length" Expressao
 ExpBinaria         ::= Expressao "+" Expressao | Expressao "-" Expressao
@@ -107,7 +107,7 @@ AcessoAtributo     ::= LeftExpression "." Id | "this" "." Id
 
 Observações sobre a sintaxe:
 
-- `protocolo` e `dyn` passam a ser **palavras reservadas**.
+- `protocolo`, `dyn` e `cast` passam a ser **palavras reservadas**.
 - `TipoClasse ::= Id` agora pode nomear **uma classe ou um protocolo**. O parser não distingue os dois (ele só vê um `Id`). A distinção é feita na verificação de tipos, consultando o ambiente. Por isso, classes e protocolos compartilham o mesmo espaço de nomes: declarar `classe Pato` e `protocolo Pato` no mesmo programa é erro.
 - Um protocolo só tem assinaturas (sem corpo), sem atributos e sem construtor. Por isso ele não pode ser instanciado: `new Falante()` é erro de tipo.
 
@@ -186,7 +186,7 @@ Essas checagens são feitas em **toda** chamada, não só quando o receptor é `
 
 ### Declarações e atribuições
 
-- `dyn d := new Pato()` e `Falante f := new Pato()`: hoje, `DecVariavelObjetoOO2` associa a variável ao tipo da **classe instanciada**, e não ao tipo declarado. Com isso `dyn` e protocolos não teriam efeito. A regra passa a ser: se o tipo declarado é `dyn` ou um protocolo, a variável recebe o **tipo declarado**, e a compatibilidade é conferida com `≼`. Para classes, o comportamento atual é mantido, para não quebrar os programas existentes.
+- `T x := new C(...)`: a variável recebe sempre o **tipo declarado** `T`, e a compatibilidade `C ≼ T` é conferida com `≼`. No OO2 original, `DecVariavelObjetoOO2` associava a variável ao tipo da **classe instanciada** `C`, o que anularia `dyn` e protocolos (`Falante f := new Pato()` deixaria `f` com tipo `Pato`). Isso também vale para classes (regra R8): com `Ave a := new Marreco(...)`, `a.nadar()` é erro de tipo, porque `Ave` não tem `nadar()`; para usar o objeto como `Marreco`, escreve-se `cast(Marreco, a)`. Os testes `TesteOO2_*` anteriores ao projeto não dependem do comportamento antigo e continuam com a mesma saída.
 - `x := e` (`AtribuicaoOO2`), `T x = e` (`SimplesDecVariavel`) e `x := new C(...)` (`NewOO2`) passam a aceitar `tipo(e) ≼ tipo(x)` em vez de igualdade. Quando `e` é `dyn` e `x` não é (regra R7), o `executar` confere `tipoDoValor(valor) ≼ tipo(x)` antes de gravar o valor.
 - Em uma variável `dyn`, a mesma variável pode receber objetos de classes diferentes ao longo da execução (exemplo 1).
 
@@ -213,12 +213,13 @@ Os caminhos abaixo são relativos a `Objetos2/src/loo2/plp/`. Toda mudança de g
 | `orientadaObjetos2/util/CompatibilidadeTipos.java` | Implementa `≼` (`ehCompativel`), `satisfaz(classe, protocolo)` e `contem(P, Q)` na compilação, e `tipoDoValor(valor, ambiente)`, `valorCompativel(valor, tipo, ambiente)` e `confereArgumentos(metodo, formais, valores, ambiente)` na execução. Reaproveita `HierarquiaUtils.ehSubTipo` para a regra R3. |
 | `orientadaObjetos2/excecao/ErroDuckTypingException.java` | Erro de execução das checagens dinâmicas. Estende `RuntimeException` para não precisar alterar a cláusula `throws` de todos os `Comando`. O `main` do parser já captura `Exception` e reporta o erro. |
 | `orientadaObjetos2/excecao/ProtocoloJaDeclaradoException.java` e `ProtocoloNaoDeclaradoException.java` | Equivalentes às exceções de classe. |
+| `orientadaObjetos2/expressao/ExpCast.java` | Nó de `cast(T, e)` (regra R8): o `checaTipo` aceita `T` relacionado por herança ao tipo de `e`, ou `T` protocolo; o `avaliar` confere `valorCompativel` com a classe real e lança `ErroDuckTypingException` se falhar. |
 
 ### Arquivos alterados
 
 | Arquivo | Mudança |
 |---|---|
-| `orientadaObjetos2/parser/OO2.jj` | Tokens `PROTOCOLO` (`"protocolo"`) e `DYN` (`"dyn"`). Novas produções `PDecOO`, `PDecProtocolo`, `PListaAssinatura`, `PAssinatura` e `PTipoDinamico`. `PListaDeclaracaoOO` passa a usar `PDecOO` no lugar de `PDecClasseAtomica`. `PTipo` ganha a alternativa `< DYN >`. |
+| `orientadaObjetos2/parser/OO2.jj` | Tokens `PROTOCOLO` (`"protocolo"`) e `DYN` (`"dyn"`). Novas produções `PDecOO`, `PDecProtocolo`, `PListaAssinatura`, `PAssinatura` e `PTipoDinamico`. `PListaDeclaracaoOO` passa a usar `PDecOO` no lugar de `PDecClasseAtomica`. `PTipo` ganha a alternativa `< DYN >`. Token `CAST` (`"cast"`) e produção `PExpCast`, uma alternativa de `PExpPrimaria`. |
 | `orientadaObjetos2/declaracao/ListaDeclaracaoOO.java` | Passa de `Lista<DecClasse>` para `Lista<DecOO>`, e os casts para `DecClasseSimplesOO2` são removidos. |
 | `orientadaObjetos2/memoria/AmbienteCompilacaoOO2.java`, `ContextoCompilacaoOO2.java`, `AmbienteExecucaoOO2.java` e `ContextoExecucaoOO2.java` | Ganham `mapProtocolo(Id, DefProtocolo)`, `getDefProtocolo(Id)` e `ehProtocolo(Id)`. O `map` de classe e o de protocolo rejeitam nomes já usados pelo outro. |
 | `orientadaObjetos1/util/TipoClasse.java` | `eValido` passa a aceitar um `Id` que nomeie uma classe **ou** um protocolo. |
@@ -226,9 +227,9 @@ Os caminhos abaixo são relativos a `Objetos2/src/loo2/plp/`. Toda mudança de g
 | `orientadaObjetos1/comando/ChamadaProcedimento.java` | `checaTipo`: `listaTipo.head().equals(tipoFormal)` passa a ser `CompatibilidadeTipos.ehCompativel(...)`. O `bindParameters` **não** foi alterado: as checagens de execução dos argumentos (aridade e `tipoDoValor(v) ≼ tipoFormal`, a regra R7) ficam em `CompatibilidadeTipos.confereArgumentos`, chamada por `ChamadaMetodoOO2.executar` e `NewOO2.executar` antes de ligar os parâmetros. O motivo é que `ChamadaProcedimento` não conhece o nome do método, necessário para as mensagens de erro. Para argumentos de classe ou protocolo, a checagem sempre passa. |
 | `orientadaObjetos1/declaracao/variavel/SimplesDecVariavel.java` e `orientadaObjetos2/comando/AtribuicaoOO2.java` | Igualdade de tipos substituída por `≼`. Em `AtribuicaoOO2`, o método privado `defClasseRightExtendsDefClasseLeft` é absorvido por `CompatibilidadeTipos`. Quando a expressão é `dyn` e a variável não é, o `checaTipo` marca o nó e a execução confere `valorCompativel` antes de gravar (regra R7). |
 | `orientadaObjetos2/comando/NewOO2.java` | `C ≼ tipo(x)` e conferência dos argumentos do construtor. Deixa de herdar de `New` (OO1) e implementa `Comando`: antes, o comando `x := new C(..)` executava o `New` de OO1, que não rodava o construtor nem criava os atributos herdados. Na execução, chama `confereArgumentos` antes do construtor. |
-| `orientadaObjetos2/declaracao/variavel/DecVariavelObjetoOO2.java` | Associa a variável ao tipo declarado quando ele é `dyn` ou protocolo. Rejeita `new P()` quando `P` é protocolo. |
+| `orientadaObjetos2/declaracao/variavel/DecVariavelObjetoOO2.java` | Associa a variável sempre ao tipo declarado (antes, ao da classe instanciada). Rejeita `new P()` quando `P` é protocolo. |
 | `orientadaObjetos2/expressao/leftExpression/AcessoAtributoIdOO2.java` | Erro de tipo quando o objeto acessado é `dyn` ou protocolo. |
-| `WebDebug/src/plp/debug/objetos2/parser/OO2Debug.jj` (fora de `Objetos2`) | Mesmos tokens e produções novas do `OO2.jj`, para a interface web aceitar os programas com `protocolo` e `dyn`. |
+| `WebDebug/src/plp/debug/objetos2/parser/OO2Debug.jj` (fora de `Objetos2`) | Mesmos tokens e produções novas do `OO2.jj` (incluindo `CAST` e `PExpCast`), para a interface web aceitar os programas com `protocolo`, `dyn` e `cast`. |
 
 ### Esboço de `CompatibilidadeTipos`
 
