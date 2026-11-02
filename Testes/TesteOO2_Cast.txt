@@ -1,0 +1,33 @@
+// Alternativa A: cast explicito. "Ave a" nao satisfaz Anfibio (ver
+// TesteOO2_ProtocoloSuperclasse), mas cast(Anfibio, a) e aceito na
+// compilacao e conferido na execucao: o objeto real e um Marreco.
+// Saida esperada:
+//   Patinhas nadando
+{
+  protocolo Anfibio {
+    proc nadar()
+  },
+  classe Ave {
+    string nome = "";
+    Ave(string nome) { this.nome := nome },
+    proc falar() { write(this.nome ++ ": piu") }
+  },
+  classe Marreco extends Ave {
+    int x = 0;
+    Marreco(string nome) { this.nome := nome },
+    proc nadar() { write(this.nome ++ " nadando") }
+  },
+  classe Lago {
+    int visitas = 0;
+    Lago() { skip },
+    proc receber(Anfibio a) {
+      this.visitas := this.visitas + 1;
+      a.nadar()
+    }
+  };
+  {
+    Lago l := new Lago(),
+    Ave a := new Marreco("Patinhas");
+    l.receber(cast(Anfibio, a))
+  }
+}

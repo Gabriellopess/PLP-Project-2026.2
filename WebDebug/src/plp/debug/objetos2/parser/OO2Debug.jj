@@ -77,6 +77,7 @@ import plp.debug.objetos2.DecClasseSimplesOO2Debug;
 import plp.debug.objetos2.DecConstrutorDebug;
 import plp.debug.objetos2.DecProcedimentoSimplesDebug;
 import loo2.plp.orientadaObjetos2.Programa;
+import loo2.plp.orientadaObjetos2.expressao.ExpCast;
 import loo2.plp.orientadaObjetos2.declaracao.DecConstrutor;
 import loo2.plp.orientadaObjetos2.declaracao.DecOO;
 import loo2.plp.orientadaObjetos2.declaracao.protocolo.Assinatura;
@@ -241,6 +242,7 @@ TOKEN : /* TOKENS DE OO2 */
 {
   < EXTENDS : "extends" >
 | < PROTOCOLO : "protocolo" >
+| < CAST : "cast" >
 }
 
 TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
@@ -707,6 +709,8 @@ Expressao PExpPrimaria() :
     retorno = PLeftExpression()
   | LOOKAHEAD(< THIS >)
     retorno = PThis()
+  | LOOKAHEAD(< CAST >)
+    retorno = PExpCast()
   | LOOKAHEAD(< LPAREN > PExpressao() < RPAREN >)
     < LPAREN > retorno = PExpressao() < RPAREN >
   | retorno = PValor()
@@ -1625,5 +1629,20 @@ Tipo PTipoClasse() :
   )
   {
     return retorno;
+  }
+}
+
+/**
+ * ExpCast ::= "cast" "(" Tipo "," Expressao ")"
+ **/
+Expressao PExpCast() :
+{
+  Tipo tipo;
+  Expressao exp;
+}
+{
+  < CAST > < LPAREN > tipo = PTipo() < COMMA > exp = PExpressao() < RPAREN >
+  {
+    return new ExpCast(tipo, exp);
   }
 }

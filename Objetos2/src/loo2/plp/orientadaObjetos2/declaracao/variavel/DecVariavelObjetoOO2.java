@@ -77,7 +77,7 @@ public class DecVariavelObjetoOO2 extends DecVariavelObjeto {
 			booleanSuper = CompatibilidadeTipos.ehCompativel(tpClasse, this.getTipo(), ambiente);
 			boolean tipoDuck = this.getTipo() instanceof TipoDinamico
 					|| ehProtocolo(ambiente, this.getTipo().getTipo());
-			ambiente.map(this.getObjeto(), tipoDuck ? this.getTipo() : tpClasse);
+			ambiente.map(this.getObjeto(), this.getTipo());
 		}
 		
 		DefClasseOO2 defClasse = (DefClasseOO2) ambiente.getDefClasse(this.getClasse());

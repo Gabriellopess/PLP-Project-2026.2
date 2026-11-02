@@ -68,6 +68,8 @@ Tipo               ::= TipoPrimitivo | TipoClasse | TipoDinamico    (*)
 TipoPrimitivo      ::= "int" | "boolean" | "string"
 TipoClasse         ::= Id                                           (*)
 TipoDinamico       ::= "dyn"                                        (*)
+ExpPrimaria       ::= ... | ExpCast                                (*)
+ExpCast            ::= "cast" "(" Tipo "," Expressao ")"            (*)
 
 Comando            ::= Atribuicao
                      | ComDeclaracao
@@ -128,6 +130,18 @@ Hoje, OO2 compara tipos com `equals` na maioria dos pontos: passagem de parâmet
 Tipos primitivos (`int`, `boolean`, `string`) só são compatíveis consigo mesmos (R1). `dyn` representa **referências a objetos**, então `dyn x = 5` é erro de tipo.
 
 A regra R7 funciona como um *cast* implícito. Passar um `dyn` para um parâmetro do tipo `Falante` é aceito na compilação. Na execução, o interpretador confere se a classe real do objeto satisfaz `Falante`; se não satisfizer, lança um erro de execução.
+
+### Herança e cast explícito (regra R8)
+
+A checagem estática usa sempre o **tipo declarado** da variável, nunca a classe do objeto que ela guarda. Se `Ave a := new Marreco(...)` e `Ave` não tem `nadar()`, então `a` não satisfaz `Anfibio`, mesmo que o objeto real seja um `Marreco`. É a mesma regra do Go (o conjunto de métodos do tipo estático, incluindo os promovidos por *embedding*) e do `typing.Protocol` do Python.
+
+Para usar o objeto como `Anfibio`, o programador escreve um **cast explícito**, `cast(T, e)`:
+
+| Regra | Cast | Quando |
+|---|---|---|
+| R8 | `cast(T, e)` tem tipo `T` | **compilação:** `T` é classe ou protocolo, e `T ≼ tipo(e)`, `tipo(e) ≼ T`, ou `T` é protocolo (uma subclasse do tipo de `e` pode satisfazê-lo). Cast entre classes sem herança, ou com tipo primitivo, é erro de tipo. **Execução:** a classe real do objeto precisa ser compatível com `T`, senão `ErroDuckTypingException`. `null` passa. |
+
+O `dyn` continua existindo como tipo de variável (regra R7); o `cast` é a forma pontual, sobre uma expressão, e não faz o resto do código perder a checagem estática.
 
 ### Quando uma classe satisfaz um protocolo
 
@@ -466,6 +480,26 @@ Erro de tipo
 ErroDuckTypingException: argumento 1 de ouvir: Pedra não satisfaz Falante
 ```
 
+### 10. Superclasse não satisfaz o protocolo
+
+```
+  {
+    Lago l := new Lago(),
+    Ave a := new Marreco("Patinhas");
+    l.receber(a)
+  }
+```
+
+`a` tem tipo estático `Ave`, que não tem `nadar()`, então `Ave ≼ Anfibio` é falso e o programa é recusado na compilação (`Erro de tipo`). Com `dyn d = a;` antes da chamada, o programa é aceito e imprime `Patinhas nadando` (regra R7).
+
+### 11. Cast explícito (regra R8)
+
+```
+    l.receber(cast(Anfibio, a))
+```
+
+Aceito na compilação e conferido na execução: o objeto real é um `Marreco`, então imprime `Patinhas nadando`. Se fosse uma `Ave`, a execução pararia com `ErroDuckTypingException: cast: Ave não satisfaz Anfibio`. `cast(Pedra, a)`, entre classes sem herança, é recusado na compilação.
+
 ## Plano de implementação
 
 Todos os passos abaixo foram implementados, cada um num PR para a branch `dev`, sem alterar a saída dos testes de OO2 que já existiam (`Testes/TesteOO2_Construtor`, `_Heranca` e `_Heranca2`).
@@ -489,6 +523,8 @@ Todos os passos abaixo foram implementados, cada um num PR para a branch `dev`, 
 | 7 | `TesteOO2_ProtocoloAssinaturas.txt` |
 | 8 | `TesteOO2_ProtocoloHeranca.txt` |
 | 9 | `TesteOO2_DynParaProtocolo.txt` |
+| 10 | `TesteOO2_ProtocoloSuperclasse.txt` e `TesteOO2_ProtocoloSuperclasseDyn.txt` |
+| 11 | `TesteOO2_Cast.txt`, `TesteOO2_CastErro.txt` e `TesteOO2_CastTipoErro.txt` |
 
 8. **Interface web**: `WebDebug/src/plp/debug/objetos2/parser/OO2Debug.jj` passa a reconhecer `protocolo` e `dyn`, com as mesmas produções do `OO2.jj` (`PDecOO`, `PDecProtocolo`, `PListaAssinatura`, `PAssinatura`, `PTipoDinamico` e a alternativa `dyn` em `PTipo`). Os testes de `Testes/` dão na WebAPI o mesmo resultado da linha de comando. Na web, um erro de execução aparece como mensagem, sem o prefixo `ErroDuckTypingException:`, e um erro de tipo aparece como `erro de tipos!`.
 
